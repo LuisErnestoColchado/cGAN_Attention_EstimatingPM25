@@ -1,3 +1,6 @@
+#********************************************************
+# GEt Data from Modis (required URLs sent by MODIS LAADS)
+#********************************************************
 import os 
 import subprocess
 
@@ -19,7 +22,7 @@ def create_directory(type_product):
     return HDF_SAVE_DIR
 
 # API-KEY of LAADS DAAC user
-API_KEY = 'bHVpc2VybmVzdG86YkhWcGN5NWpiMnhqYUdGa2IwQjFZM053TG1Wa2RTNXdaUT09OjE2MzYxMjEzMzA6M2EwNmEyNGMxNTQxMDg1NmQxMDg0NWQyNzc4NjY3MTIyOGYxZTk1Mw'
+API_KEY = '' 
 
 # Sources sent to your email, after placing the order in https://ladsweb.modaps.eosdis.nasa.gov/search/
 
@@ -46,5 +49,4 @@ for source in MOD13A2_source:
                      source, '-d', MOD13A2_destination, '-t', API_KEY])
     print(source + ' downloaded')
 print('MOD13A2 downloaded')
-
 ##

@@ -8,7 +8,7 @@ class Coord():
         self.lat = lat
 
     def convertToPoint(self):
-        point_proj = Proj(init='epsg:3857')
+        point_proj = Proj('epsg:3857')
         x, y = point_proj(self.long, self.lat)
         return x, y
 

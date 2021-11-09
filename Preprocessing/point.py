@@ -9,16 +9,9 @@ class Point():
         self.y = y
 
     def convertToCoord(self):
-        in_proj = Proj(init='epsg:3857') # China data
+        in_proj = Proj('epsg:3857') # China data
         #in_proj = Proj(init='epsg:32723') # Brazil data
-        out_proj = Proj(init='epsg:4326')
-        long, lat = transform(in_proj, out_proj, self.x, self.y)
-        return long, lat
-
-    def convertToCoord_3857(self):
-        in_proj = Proj(init='epsg:3857') # China data
-        #in_proj = Proj(init='epsg:32723') # Brazil data
-        out_proj = Proj(init='epsg:4326')
+        out_proj = Proj('epsg:4326')
         long, lat = transform(in_proj, out_proj, self.x, self.y)
         return long, lat
 
