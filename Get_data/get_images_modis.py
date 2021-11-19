@@ -26,14 +26,13 @@ API_KEY = ''
 
 # Sources sent to your email, after placing the order in https://ladsweb.modaps.eosdis.nasa.gov/search/
 
-# Information for download VNP95 product
-VNP46A1_source = ['https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/501670881/',
-                  'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/501670883/',
-                  'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/501670886/']
+# Orders for download VNP95 product 
+# ex: https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/501670881/
+VNP46A1_source = ['']
 VNP46A1_destination = create_directory('VNP46A1')
 
-# Information for download MOD13A2 product
-MOD13A2_source = ['https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/501670633/']
+# Orders for download MOD13A2 product
+MOD13A2_source = ['']
 
 MOD13A2_destination = create_directory('MOD13A2')
 
@@ -43,6 +42,7 @@ for source in VNP46A1_source[1:]:
                     source, '-d', VNP46A1_destination, '-t', API_KEY])
     print(source + ' downloaded')
 print('VNP46A1 downloaded')
+
 
 for source in MOD13A2_source:
     subprocess.call(["python3", 'download_laads.py', '-s',
