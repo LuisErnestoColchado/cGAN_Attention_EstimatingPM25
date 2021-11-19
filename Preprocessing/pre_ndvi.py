@@ -16,7 +16,7 @@ from PIL import Image
 import os
 
 #PROJECT_ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-MOD13A2_DIR = PROJECT_ROOT_DIR+'/Data/Satellite_data/MOD13A2'
+MOD13A2_DIR = '../Data/Satellite_data/MOD13A2'
 
 if not (os.path.isdir(MOD13A2_DIR)):
     os.mkdir(MOD13A2_DIR)
@@ -42,12 +42,12 @@ else:
 product_type = 'MOD13A2'
 
 # Selected the cover area of 35 air quality monitoring stations on Beijing
-north, east = -23.44829001, -46.35145900
-south, west = -23.78428997, -46.86132300 #39.49534528, 115.58538899
+north, east = 40.3415493967356, 116.67319258392523
+south, west = 39.86056186496943, 116.1701360248183 #39.49534528, 115.58538899
 
 # Time interval
-start_date = '2017-01-01 00:00'
-end_date = '2019-12-31 23:59'
+#!start_date = '2015-01-01 00:00'
+#!end_date = '2016-12-31 23:59'
 
 # Name datafield for get NDVI index (1 km resolution pixel)
 datafield_name = '1 km 16 days NDVI'
@@ -104,7 +104,7 @@ for hdf_file in os.listdir(HDF_SAVE_DIR):
             longitude = lon[np.min(row_index):np.max(row_index), np.min(col_index):np.max(col_index)]
             data = data[np.min(row_index):np.max(row_index), np.min(col_index):np.max(col_index)]
 
-            name = hdf_file.split('.')[0] + '_' + hdf_file.split('.')[1]
+            name = hdf_file.split('.')[0] + '_' + hdf_file.split('.')[1] + '_' + hdf_file.split('.')[4]
 
             with open(ARRAY_SAVE_DIR+'/ndvi_cropped_data_' + name + '.txt', 'w') as f:
                 for i in range(latitude.shape[0]):
