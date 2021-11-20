@@ -14,7 +14,7 @@ import os
 import pandas as pd
 ##
 
-VNP46A1_DIR = 'Data/Sao_Paulo/VNP46A1'
+VNP46A1_DIR = '../Data/Satellite_data/VNP46A1'
 
 if not (os.path.isdir(VNP46A1_DIR)):
     os.mkdir(VNP46A1_DIR)
@@ -39,11 +39,11 @@ else:
 
 product_type = 'VNP46A1'
 
-grid_bb = pd.read_csv('Data/Sao_Paulo/data_saopaulo/grid_1km.csv')
+grid_bb = pd.read_csv('../Data/Ground_data/2km_beijing_qgis.csv')
 
 proj_qgis = pyproj.Proj(3857)
 
-# Selected the cover area of 35 air quality monitoring stations on Beijing
+# Selected the cover area of AQM stations
 west, north = proj_qgis(np.min(grid_bb['left'].values), np.max(grid_bb['top'].values), inverse=True)
 east, south = proj_qgis(np.max(grid_bb['right'].values), np.min(grid_bb['bottom'].values), inverse=True)
 
@@ -68,7 +68,7 @@ for hdf_file in os.listdir(SP_HDF_SAVE_DIR):
             valid_max = vmax[0]
             vmin = attrs["valid_min"]
             valid_min = vmin[0]
-            fva = attrs["_FillValue"]
+            fva = attrs["_FillValue"]   
             _FillValue = fva[0]
             sfa = attrs["scale_factor"]
             scale_factor = sfa[0]
@@ -110,18 +110,12 @@ for hdf_file in os.listdir(SP_HDF_SAVE_DIR):
 
             lon, lat = sinu(xv, yv, inverse=True)
 
-            # Crop Sao Paulo
-            min_lat = -23.78428997
-            max_lat = -23.44829001
-            min_lon = -46.82833782
-            max_lon = -46.38209692
-
-            row_index, col_index = np.where((lat >= min_lat) & (lat <= max_lat) & (lon >= min_lon) & (lon <= max_lon))
+            row_index, col_index = np.where((lat >= south) & (lat <= north) & (lon >= west) & (lon <= east))
             latitude = lat[np.min(row_index):np.max(row_index)+1, np.min(col_index):np.max(col_index)+1]
             longitude = lon[np.min(row_index):np.max(row_index)+1, np.min(col_index):np.max(col_index)+1]
             data = data[np.min(row_index):np.max(row_index)+1, np.min(col_index):np.max(col_index)+1]
 
-            name = hdf_file.split('.')[0] + '_' + hdf_file.split('.')[1] + '_' + hdf_file.split('.')[4]
+            name = hdf_file.split('.')[0] + '_' + hdf_file.split('.')[1] + '_' + hdf_file.split('.')[2] + '_' + hdf_file.split('.')[4]
             
             count = 0
             image_array = np.zeros((latitude.shape[0]*latitude.shape[1], 3))

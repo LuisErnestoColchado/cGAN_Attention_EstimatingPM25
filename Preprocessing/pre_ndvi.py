@@ -41,9 +41,12 @@ else:
 
 product_type = 'MOD13A2'
 
-# Selected the cover area of 35 air quality monitoring stations on Beijing
-north, east = 40.3415493967356, 116.67319258392523
-south, west = 39.86056186496943, 116.1701360248183 #39.49534528, 115.58538899
+# Selected the cover area of AQM stations
+grid_bb = pd.read_csv('../Data/Ground_data/2km_beijing_qgis.csv')
+
+proj_qgis = pyproj.Proj(3857)
+west, north = proj_qgis(np.min(grid_bb['left'].values), np.max(grid_bb['top'].values), inverse=True)
+east, south = proj_qgis(np.max(grid_bb['right'].values), np.min(grid_bb['bottom'].values), inverse=True)
 
 # Time interval
 #!start_date = '2015-01-01 00:00'
@@ -104,14 +107,20 @@ for hdf_file in os.listdir(HDF_SAVE_DIR):
             longitude = lon[np.min(row_index):np.max(row_index), np.min(col_index):np.max(col_index)]
             data = data[np.min(row_index):np.max(row_index), np.min(col_index):np.max(col_index)]
 
-            name = hdf_file.split('.')[0] + '_' + hdf_file.split('.')[1] + '_' + hdf_file.split('.')[4]
+            name = hdf_file.split('.')[0] + '_' + hdf_file.split('.')[1] + '_' +  hdf_file.split('.')[2] + '_' + hdf_file.split('.')[4]
 
-            with open(ARRAY_SAVE_DIR+'/ndvi_cropped_data_' + name + '.txt', 'w') as f:
-                for i in range(latitude.shape[0]):
-                    for j in range(longitude.shape[1]):
-                        format_ = '%f/%f/%f|' if j < latitude.shape[1] - 1 else '%f/%f/%f'
-                        f.write(format_ % (latitude[i, j], longitude[i, j], data[i, j]))
-                    f.write('\n')
+            count = 0
+            image_array = np.zeros((latitude.shape[0]*latitude.shape[1], 3))
+            for i in range(latitude.shape[0]):
+                for j in range(latitude.shape[1]):
+                    image_array[count, 0] = latitude[i, j]
+                    image_array[count, 1] = longitude[i, j]
+                    image_array[count, 2] = data[i, j]
+                    count += 1
+
+            image_array.tofile(ARRAY_SAVE_DIR+'/ndvi_cropped_'+name+'.dat')
+            with open(ARRAY_SAVE_DIR+'/info.txt', 'w') as f:
+                f.write('{}x{}'.format(latitude.shape[0], latitude.shape[1]))
             
             scale_image = MinMaxScaler((0, 255))
             image_data = np.asarray(data).copy()

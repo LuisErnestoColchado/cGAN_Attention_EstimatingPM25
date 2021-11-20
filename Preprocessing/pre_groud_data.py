@@ -8,7 +8,7 @@ import glob
 from pandas.core.frame import DataFrame 
 from tqdm import tqdm
 from point import Point
-from cord import Coord
+from coord import Coord
 from bounding_box import Bounding_box
 
 
@@ -16,7 +16,7 @@ from bounding_box import Bounding_box
 class setting:
     directory_data = '../Data/Ground_data/pollution_meteorological'
     num_files = len([name for name in os.listdir(directory_data) if os.path.isfile(name)])
-    grid1km_qgis = '../Data/Ground_data/grids_1km_qgis.csv'
+    grid2km_qgis = '../Data/Ground_data/2km_beijing_qgis.csv'
     aq_stations = '../Data/Ground_data/stations_graph.csv'
     dict_cardinal = {"N": 360, "NbE": 11.25, "NNE": 22.5, "NEbN": 33.75, "NE": 45, "NEbE": 56.25,
                     "ENE": 67.5, "EbN": 78.75, "E": 90, "EbS": 101.25, "ESE": 112.5, "SEbE": 123.75,
@@ -33,8 +33,8 @@ class setting:
 
 # Get bounding box region
 def get_bb_region() -> Coord:
-    data = pd.read_csv(setting.grid1km_qgis)
-    print(data.columns)
+    data = pd.read_csv(setting.grid2km_qgis)
+    #print(data.columns)
     left, top = data.loc[0, 'left'], data.loc[0, 'top']
     right, bottom = data.iloc[-1, data.columns.get_loc('right')], data.iloc[-1, data.columns.get_loc('bottom')]
     lt_point = Point(left, top)
@@ -47,7 +47,7 @@ def get_bb_region() -> Coord:
 # Get 
 def grid_stations() -> DataFrame:
     dict_neighbors = {}
-    grid_data = pd.read_csv(setting.grid1km_qgis)
+    grid_data = pd.read_csv(setting.grid2km_qgis)
     coord_aq_stations = pd.read_csv(setting.aq_stations)
     grid_station = pd.DataFrame(columns=['id', 'lat', 'long', 'is_aqm', 'station'])
 
@@ -73,11 +73,12 @@ def grid_stations() -> DataFrame:
                     station_ = station
             dict_sorted = dict(sorted(dict_neighbors.items(), key=lambda item: item[1]))
             if station_ is not None: 
-                print(station_)
+                #print(station_)
                 del dict_sorted[station_]
             row = {'id': 'point_'+str(i), 'lat': lat_center, 'long': long_center, 'is_aqm': flag, 
                     'station': station_, 'knn': dict_sorted}
             grid_station = grid_station.append(row, ignore_index=True)
+            pbar.set_description('point_'+str(i))
             pbar.update(1)
     return grid_station
 
@@ -85,7 +86,7 @@ def grid_stations() -> DataFrame:
 # Function read the data for a directory (format: csv)
 def read_data() -> dict:
     dict_data = {}
-    print(setting.num_files)
+    #print(setting.num_files)
     with tqdm(total=len(glob.glob(os.path.join(setting.directory_data, '*.csv')))) as bar:
         for filename in glob.glob(os.path.join(setting.directory_data, '*.csv')):
             split_file = filename.split('_')
@@ -104,7 +105,7 @@ def get_date(data_frame: DataFrame) -> DataFrame:
 
 
 def check_complete_series(data_frame: DataFrame) -> bool:
-    print(len(data_frame))
+    #print(len(data_frame))
     count = 0
     start_d = setting.start_date 
     flag = True
@@ -123,55 +124,56 @@ def check_complete_series(data_frame: DataFrame) -> bool:
 
 
 def preprocessing(dict_data: dict) -> DataFrame:
-    
+    data = pd.DataFrame()
     with tqdm(total=len(dict_data)) as bar:
-        #!for k, v in dict_data.items():
-            #print(k, v.columns)
-        k, v = dict_data.popitem()
+        for k, v in dict_data.items():
+            print(k)
+            #k, v = dict_data.popitem()
 
-        v['PM25'] = v['PM2.5']
-        v['station'] = k
+            v['PM25'] = v['PM2.5']
 
-        df = get_date(v)
-        df = df[setting.selected_columns]
-        df = df[(df['datetime'] >= setting.start_date) & (df['datetime'] <= setting.end_date)].reset_index(drop=True)
-#list_ang = [setting.dict_cardinal[str(x)] for x in df['wd']]
-#df['wd'] = list_ang
-        df = df.replace({'wd': setting.dict_cardinal})
-#print(df['wd'])
-#print(k)
-        
-        print(k)
-        for column in df.columns:
-            if column not in ['station', 'datetime']:
-                nan_per = len(df[df[column].isna()])/len(df)
-                if nan_per <= setting.limit_nan:
-                    df[column] = df[column].interpolate(method='linear')
-                #print(df)
-            #print(len(df[df[column].isna()])/len(df))
-            #print(column, nan_per)
+            df = get_date(v)
+            
+            df = df[(df['datetime'] >= setting.start_date) & (df['datetime'] <= setting.end_date)].reset_index(drop=True)
+    #list_ang = [setting.dict_cardinal[str(x)] for x in df['wd']]
+    #df['wd'] = list_ang
+            df = df.replace({'wd': setting.dict_cardinal})
+    #print(df['wd'])
+    #print(k)
+            df = df[setting.selected_columns]
+            
+            for column in df.columns:
+                if column not in ['station', 'datetime']:
+                    nan_per = len(df[df[column].isna()])/len(df)
+                    if nan_per <= setting.limit_nan:
+                        df[column] = df[column].interpolate(method='linear')
+            #print(check_complete_series(df))
+            df = df.resample('d', on='datetime').mean()
+            df['datetime'] = df.index
+            #print(df)
+                #print(len(df[df[column].isna()])/len(df))
+                #print(column, nan_per)
 
-            #if column == 'PM25':
-            #    mean_nan_pm25 += nan_per
-        print(check_complete_series(df))
-        dict_data.update({k: df})
+                #if column == 'PM25':
+                #    mean_nan_pm25 += nan_per
+            df = df.reset_index(drop=True)
+            df['station'] = k
+            #dict_data.update({k: df})
+            data = pd.concat([data, df], axis=0)
+            bar.set_description(f'loading {k}')
+            bar.update(1)
+    
     #print(dict_data['Aotizhongxin']['wd'])
     #!k, v = dict_data.popitem()
     #!print(v['wd'])
     #print(mean_nan_pm25/len(dict_data))
-    return dict_data
+    return data
 
 if __name__ == '__main__':
+    points = grid_stations()
     dict_data = read_data()
     min, max = get_bb_region()
     print(f'{min.lat}, {min.long} , {max.lat}, {max.long}')
-    grid_aqm = grid_stations()
-    for i in grid_aqm.index:
-        if len(grid_aqm.loc[i, 'knn']) < 12:
-            print(i)
+    data = preprocessing(dict_data)#['Changping']
     
-    #!dict_ = preprocessing(dict_data)['Wanshouxigong']
-    #data = dict_data.get('Huairou')
-    #!print(dict_.columns)
-    #print([k for k, v in dict_data.items()])
 
