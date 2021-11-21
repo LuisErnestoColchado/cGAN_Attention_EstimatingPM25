@@ -1,7 +1,11 @@
 from datetime import datetime, timedelta
+from math import pi
+from operator import index
 import os
 from posixpath import split
 from typing import Coroutine
+from unicodedata import normalize
+from PIL.Image import TRANSPOSE
 import pandas as pd 
 import numpy as np 
 import glob
@@ -10,7 +14,9 @@ from tqdm import tqdm
 from point import Point
 from coord import Coord
 from bounding_box import Bounding_box
+import json
 
+# TODO convert dew point to humidity
 
 # Setting 
 class setting:
@@ -28,7 +34,8 @@ class setting:
     limit_nan = 0.05 # 5%
     start_date = pd.to_datetime('2015-01-01')
     end_date = pd.to_datetime('2016-12-31')
-    knn = 7
+    meo_beijing_2013_2017 = ['TEMP', 'PRES', 'DEWP', 'wd', 'WSPM']
+    normalize_meo = ['temp', 'pres', 'dewp', 'wd', 'ws']
 
 
 # Get bounding box region
@@ -41,7 +48,7 @@ def get_bb_region() -> Coord:
     lon, lat = lt_point.convertToCoord()
     rb_point = Point(right, bottom)
     lonrb, latrb = rb_point.convertToCoord()
-    return Coord(long=lon, lat=lat), Coord(long=lonrb, lat=latrb)
+    return Coord(lat=lat, long=lon), Coord(lat=latrb, long=lonrb)
 
 
 # Get 
@@ -58,12 +65,12 @@ def grid_stations() -> DataFrame:
             grid_rb = Point(grid_data.loc[i, 'right'], grid_data.loc[i, 'bottom'])
             bb_grid = Bounding_box(i,1,grid_lt, grid_rb)
             x_center, y_center = bb_grid.getCenter()
-            long_center, lat_center = Point(x_center, y_center).convertToCoord()
-            current_coord = Coord(long_center, lat_center)
+            lat_center, long_center = Point(x_center, y_center).convertToCoord()
+            current_coord = Coord(lat_center, long_center)
             flag = False 
             station_ = None
             for station, long, lat in zip(coord_aq_stations['Label'], coord_aq_stations['Longitude'], coord_aq_stations['Latitude']):
-                aqm_coord = Coord(long, lat)
+                aqm_coord = Coord(lat, long)
                 dist = current_coord.haversineDistance(aqm_coord)
                 dict_neighbors.update({station: dist})
                 x, y = aqm_coord.convertToPoint()
@@ -76,7 +83,7 @@ def grid_stations() -> DataFrame:
                 #print(station_)
                 del dict_sorted[station_]
             row = {'id': 'point_'+str(i), 'lat': lat_center, 'long': long_center, 'is_aqm': flag, 
-                    'station': station_, 'knn': dict_sorted}
+                    'station': station_, 'knn': json.dumps(dict_sorted)}
             grid_station = grid_station.append(row, ignore_index=True)
             pbar.set_description('point_'+str(i))
             pbar.update(1)
@@ -124,10 +131,11 @@ def check_complete_series(data_frame: DataFrame) -> bool:
 
 
 def preprocessing(dict_data: dict) -> DataFrame:
+    aqm_data = pd.read_csv(setting.aq_stations)
     data = pd.DataFrame()
     with tqdm(total=len(dict_data)) as bar:
         for k, v in dict_data.items():
-            print(k)
+            #print(k)
             #k, v = dict_data.popitem()
 
             v['PM25'] = v['PM2.5']
@@ -154,10 +162,14 @@ def preprocessing(dict_data: dict) -> DataFrame:
                 #print(len(df[df[column].isna()])/len(df))
                 #print(column, nan_per)
 
-                #if column == 'PM25':
+                #if column == 'PM25':   
                 #    mean_nan_pm25 += nan_per
             df = df.reset_index(drop=True)
             df['station'] = k
+            current_aqm = aqm_data[(aqm_data['Label']==k)].reset_index(drop=True)
+            lat, lon = current_aqm.loc[0, 'Latitude'], current_aqm.loc[0, 'Longitude']
+            df['lat'] = lat
+            df['lon'] = lon 
             #dict_data.update({k: df})
             data = pd.concat([data, df], axis=0)
             bar.set_description(f'loading {k}')
@@ -175,5 +187,7 @@ if __name__ == '__main__':
     min, max = get_bb_region()
     print(f'{min.lat}, {min.long} , {max.lat}, {max.long}')
     data = preprocessing(dict_data)#['Changping']
+    data.to_csv('../Data/Ground_data/preprocessed_data.csv', index=False)
+    points.to_csv('../Data/Ground_data/points.csv', index=False)
     
-
+  

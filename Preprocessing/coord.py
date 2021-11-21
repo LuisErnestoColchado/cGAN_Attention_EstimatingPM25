@@ -3,14 +3,16 @@ import math
 import pandas as pd
 
 class Coord():
-    def __init__(self,long,lat):
-        self.long = long
+    def __init__(self,lat,long):
         self.lat = lat
+        self.long = long
+        
 
     def convertToPoint(self):
         point_proj = Proj('epsg:3857')
         x, y = point_proj(self.long, self.lat)
         return x, y
+        
 
     def haversineDistance(self, other_coord):
         R = 6356.752
