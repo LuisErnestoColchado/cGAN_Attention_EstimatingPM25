@@ -82,8 +82,8 @@ def grid_stations() -> DataFrame:
             if station_ is not None: 
                 #print(station_)
                 del dict_sorted[station_]
-            row = {'id': 'point_'+str(i), 'lat': lat_center, 'long': long_center, 'is_aqm': flag, 
-                    'station': station_, 'knn': json.dumps(dict_sorted)}
+            row = {'id': 'point_'+str(i), 'lat': lat_center, 'long': long_center, 'left': grid_lt.x, 'top': grid_lt.y,
+                   'right': grid_rb.x, 'bottom': grid_rb.y, 'is_aqm': flag, 'station': station_, 'knn': json.dumps(dict_sorted)}
             grid_station = grid_station.append(row, ignore_index=True)
             pbar.set_description('point_'+str(i))
             pbar.update(1)
@@ -158,6 +158,10 @@ def preprocessing(dict_data: dict) -> DataFrame:
             #print(check_complete_series(df))
             df = df.resample('d', on='datetime').mean()
             df['datetime'] = df.index
+            
+            new_names_meo = {k: v for k, v in zip(setting.meo_beijing_2013_2017, setting.normalize_meo)}
+            df = df.rename(index=str, columns=new_names_meo)
+
             #print(df)
                 #print(len(df[df[column].isna()])/len(df))
                 #print(column, nan_per)
@@ -190,4 +194,3 @@ if __name__ == '__main__':
     data.to_csv('../Data/Ground_data/preprocessed_data.csv', index=False)
     points.to_csv('../Data/Ground_data/points.csv', index=False)
     
-  
