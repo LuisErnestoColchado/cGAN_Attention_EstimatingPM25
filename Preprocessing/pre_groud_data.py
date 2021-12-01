@@ -1,11 +1,4 @@
-from datetime import datetime, timedelta
-from math import pi
-from operator import index
-import os
-from posixpath import split
-from typing import Coroutine
-from unicodedata import normalize
-from PIL.Image import TRANSPOSE
+from datetime import timedelta
 import pandas as pd 
 import numpy as np 
 import glob
@@ -184,6 +177,7 @@ def preprocessing(dict_data: dict) -> DataFrame:
     #!print(v['wd'])
     #print(mean_nan_pm25/len(dict_data))
     return data
+
 
 if __name__ == '__main__':
     points = grid_stations()

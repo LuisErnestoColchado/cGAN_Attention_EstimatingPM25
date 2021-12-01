@@ -4,7 +4,6 @@
 # Description: Crop NTL data based on interest region
 # Based on https://hdfeos.org/zoo/MORE/LPDAAC/MCD/MCD19A2.A2010010.h25v06.006.2018047103710.hdf.py
 #*************************************************************************************************
-
 import numpy as np
 from h5py import File
 import pyproj
