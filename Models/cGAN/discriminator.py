@@ -15,5 +15,5 @@ class Discriminator(nn.Module):
         x = self.map2(x)
         x = self.f_relu(x)
         x = self.map3(x)
-        x = self.f_relu(x)
+        x = self.f(x)
         return x

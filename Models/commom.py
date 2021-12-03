@@ -2,7 +2,7 @@
 #currentdir = os.path.dirname(os.path.realpath(__file__))
 #parentdir = os.path.dirname(currentdir)
 #sys.path.append(parentdir)
-from os import nice
+from torch.nn import init
 import numpy as np
 import torch
 from sklearn import preprocessing
@@ -25,6 +25,10 @@ def normalization(data, column, size_columns):
 def split_data(data, station):
     data_train = data[data['station'] != station]
     data_test = data[data['station'] == station]
+    #PM25_test = data[data['station'] == station]['PM25']
+    #indices = PM25_test.index
+    ##print(indices)
+    #data.loc[indices, 'PM25'] = np.nan
     return data_train, data_test
 
 
@@ -33,8 +37,8 @@ def to_tensor(x, is_cuda):
     return FloatTensor(x)
 
 
-def load_data_cgan(x, knn_dist, knn_values, y, batch_size):
-    data = TensorDataset(x, knn_dist, knn_values, y)
+def load_data_cgan(condition, knn_dist, knn_values, x, batch_size):
+    data = TensorDataset(condition, knn_dist, knn_values, x)
     loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False)
     return loader
 

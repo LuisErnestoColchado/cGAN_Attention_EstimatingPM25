@@ -103,8 +103,6 @@ if __name__ == '__main__':
 
     points = pd.read_csv(setting.filename_points)
 
-
-    # TODO recorrido por las fechas
     current_date = start_date
     count_error = 0
     while current_date <= end_date: #-timedelta(days=700)
@@ -180,8 +178,6 @@ if __name__ == '__main__':
                 bar.update(1)
             count += 1
         current_date += timedelta(days=1)
-
-    #data_knn = pd.read_csv('data_knn.csv')
 
     merge = labeled_data(data_knn, data, points)
 
