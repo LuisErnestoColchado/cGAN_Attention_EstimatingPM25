@@ -76,17 +76,17 @@ class GraphAttentionLayer(nn.Module):
         else:
             self.weight = nn.Parameter(torch.Tensor(out_dim, in_dim))
             # initialize parameters
-            #std = 1. / np.sqrt(self.weight.size(1))
-            #init.xavier_normal_(self.weight.data)
             std = 1. / np.sqrt(self.weight.size(1))
-            #self.weight.data.uniform_(-std, std)
-            self.weight.data = torch.as_tensor([[0.1653, 0.2211, 0.0896, -0.3359, 0.2779, 0.1168, 0.1028],
-                           [-0.2507, -0.0906, -0.0630, 0.1364, -0.0938, -0.0713, -0.2251],
-                           [0.3156, -0.0117, 0.0644, -0.1215, 0.1315, -0.2904, -0.2125],
-                           [-0.0297, -0.1790, -0.1531, 0.2390, -0.0504, -0.2149, 0.1697],
-                           [-0.1144, 0.2564, -0.1513, -0.2024, -0.0376, -0.2710, 0.1881],
-                           [-0.3571, 0.3387, -0.2864, -0.1734, -0.1039, -0.2041, -0.0011],
-                           [0.2362, -0.2469, 0.0761, -0.0168, 0.0492, -0.0782, -0.0550]])
+            #init.xavier_normal_(self.weight.data)
+            #std = 1. / np.sqrt(self.weight.size(1))
+            self.weight.data.uniform_(-std, std)
+            #self.weight.data = torch.as_tensor([[0.1653, 0.2211, 0.0896, -0.3359, 0.2779, 0.1168, 0.1028],
+            #               [-0.2507, -0.0906, -0.0630, 0.1364, -0.0938, -0.0713, -0.2251],
+            #               [0.3156, -0.0117, 0.0644, -0.1215, 0.1315, -0.2904, -0.2125],
+            #               [-0.0297, -0.1790, -0.1531, 0.2390, -0.0504, -0.2149, 0.1697],
+            #               [-0.1144, 0.2564, -0.1513, -0.2024, -0.0376, -0.2710, 0.1881],
+            #               [-0.3571, 0.3387, -0.2864, -0.1734, -0.1039, -0.2041, -0.0011],
+            #               [0.2362, -0.2469, 0.0761, -0.0168, 0.0492, -0.0782, -0.0550]])
 
         self.rescale = rescale
         self.k = k
@@ -131,7 +131,7 @@ class GraphAttentionLayer(nn.Module):
         # Split auxiliary features and pollutant feature
         pollutant = x[:, -1]
         x = x[:, :-1]
-        print(pollutant)
+        #print(pollutant)
         if self.reset_graph_every_forward:
             self.reset_graph()
 

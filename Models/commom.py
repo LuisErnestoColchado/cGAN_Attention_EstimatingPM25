@@ -31,6 +31,15 @@ def split_data(data, station):
     #data.loc[indices, 'PM25'] = np.nan
     return data_train, data_test
 
+def split_attention(data, station):
+    data_train = data.copy()#data[data['station'] != station]
+    data_test = data[data['station'] == station]
+    #PM25_test = data[data['station'] == station]['PM25']
+    #indices = PM25_test.index
+    ##print(indices)
+    #data.loc[indices, 'PM25'] = np.nan
+    return data_train, data_test
+
 
 def to_tensor(x, is_cuda):
     FloatTensor = torch.cuda.FloatTensor if is_cuda else torch.FloatTensor

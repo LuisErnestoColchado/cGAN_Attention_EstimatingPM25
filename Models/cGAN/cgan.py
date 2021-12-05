@@ -1,8 +1,8 @@
 import os, sys
-from re import X
-from threading import Condition
+#from re import X
+#from threading import Condition
 
-from torch.utils import data
+#from torch.utils import data
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -25,9 +25,7 @@ class cGAN:
         self.g_steps = g_steps
         self.d_steps = d_steps
 
-        #if g_optimizer == 'Adam':
         self.g_optimizer = g_optimizer
-        #if d_optimizer == 'Adam':
         self.d_optimizer = d_optimizer
 
         if spatial_loss:
@@ -64,7 +62,6 @@ class cGAN:
 
         with tqdm(total=self.num_epoch) as bar:
             for i in range(1, self.num_epoch+1):
-                #for condition, distances, knn_values, x_real in train_loader:
                 for batch_data in train_loader:
                     condition = batch_data['condition']
                     distances = batch_data['distances']
@@ -75,8 +72,6 @@ class cGAN:
                     size_batch = len(condition)
 
                     for _ in range(self.g_steps):
-                        # print(dist_batch)
-                        # print(type(x_batch), type(dist_batch))
                         size_batch = condition.size(0)
 
                         indeces_labeled = torch.where(~torch.isnan(x_real))
@@ -90,16 +85,9 @@ class cGAN:
 
                         self.generator.zero_grad()
 
-                        #for l in range(len(condition)):
-                        #current_condition =  condition[l]
-                            
-                        #current_z = z[l]
-
                         fake_input_generator = torch.cat([z, condition], -1)
 
                         fake_data = self.generator(fake_input_generator)
-
-                        #fake_data_batch[l, 0] = fake_data
                         
                         spatial_error = torch.mul(torch.pow(knn_values - fake_data, 2), torch.exp(-distances))
 
@@ -108,7 +96,7 @@ class cGAN:
                         fake_data_labeled = fake_data_batch[indeces_labeled].T
 
                         condition_labeled = condition[indeces_labeled].reshape(1, condition[indeces_labeled].shape[0]*condition[indeces_labeled].shape[1])
-                        #print(fake_data_labeled.shape, condition_labeled.shape)
+                        
                         fake_input_discriminator = torch.cat((fake_data_labeled, condition_labeled), -1)
                         
                         dg_fake_decision = self.discriminator(fake_input_discriminator)
@@ -118,7 +106,6 @@ class cGAN:
                         
                         g_error = adv_error + spatial_error_
                                     
-                        #print(g_error)
                         g_error.backward(retain_graph=True)
                         self.g_optimizer.step()
                         ge = extract(g_error)[0]
@@ -176,4 +163,8 @@ class cGAN:
                     bar.update(1)
                     print(" Test metrics: MSE ", MSE_test, " RMSE ", RMSE_test, " MAE ", MAE_test, " R2 ", r2_test, 
                             " GE ", ge,  " DFE ", dfe)  # )
-                    
+
+            results = {'mse_test': MSE_test, 'rmse_test': RMSE_test, 'mae_test': MAE_test, 
+            'r2_test': r2_test, 'fake_error_g': fake_error_generator, 'fake_error_d': fake_error_discriminator,
+            'real_error_d': real_error_discriminator}
+            return results
