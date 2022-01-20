@@ -97,7 +97,7 @@ if __name__ == '__main__':
     print('Loaded!')
 
 
-    data_ndvi = get_data(setting.NDVI_DIR, start_date, end_date, setting.ndvi_interval)
+    data_ndvi = get_data(setting.NDVI_DIR, start_date, end_date)#, setting.ndvi_interval)
 
     data_ntl = get_data(setting.VNP_DIR, start_date, end_date)
 
@@ -105,6 +105,7 @@ if __name__ == '__main__':
 
     current_date = start_date
     count_error = 0
+    data_knn = pd.DataFrame()
     while current_date <= end_date: #-timedelta(days=700)
         current_data = data[data['datetime']==current_date]
         ndvi_date = str(current_date)[:10]
@@ -180,5 +181,4 @@ if __name__ == '__main__':
         current_date += timedelta(days=1)
 
     merge = labeled_data(data_knn, data, points)
-
-    merge.to_csv('Results/data_train.csv')
+    merge.to_csv('Results/data_train_sp.csv')
