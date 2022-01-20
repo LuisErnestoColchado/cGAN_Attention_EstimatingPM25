@@ -1,3 +1,9 @@
+# ******************************************************************************************
+# Author: Luis Ernesto Colchado Soncco
+# Email: luis.colchado@ucsp.edu.pe
+# Description: Preprocess meteorological condition and pollution data from Beijing 
+# ******************************************************************************************
+import os 
 from datetime import timedelta
 import pandas as pd 
 import numpy as np 
@@ -9,7 +15,6 @@ from coord import Coord
 from bounding_box import Bounding_box
 import json
 
-# TODO convert dew point to humidity
 
 # Setting 
 class setting:
@@ -73,7 +78,6 @@ def grid_stations() -> DataFrame:
                     station_ = station
             dict_sorted = dict(sorted(dict_neighbors.items(), key=lambda item: item[1]))
             if station_ is not None: 
-                #print(station_)
                 del dict_sorted[station_]
             row = {'id': 'point_'+str(i), 'lat': lat_center, 'long': long_center, 'left': grid_lt.x, 'top': grid_lt.y,
                    'right': grid_rb.x, 'bottom': grid_rb.y, 'is_aqm': flag, 'station': station_, 'knn': json.dumps(dict_sorted)}
@@ -86,7 +90,6 @@ def grid_stations() -> DataFrame:
 # Function read the data for a directory (format: csv)
 def read_data() -> dict:
     dict_data = {}
-    #print(setting.num_files)
     with tqdm(total=len(glob.glob(os.path.join(setting.directory_data, '*.csv')))) as bar:
         for filename in glob.glob(os.path.join(setting.directory_data, '*.csv')):
             split_file = filename.split('_')
@@ -105,15 +108,12 @@ def get_date(data_frame: DataFrame) -> DataFrame:
 
 
 def check_complete_series(data_frame: DataFrame) -> bool:
-    #print(len(data_frame))
     count = 0
     start_d = setting.start_date 
     flag = True
     while start_d <= setting.end_date:
-        #print(start_d, data_frame.loc[count, 'datetime'])
         if count < len(data_frame):
             if start_d != data_frame.loc[count, 'datetime']:
-            #print("Missing date: ", start_d)
                 flag = False
         else:
             flag = False
@@ -128,19 +128,14 @@ def preprocessing(dict_data: dict) -> DataFrame:
     data = pd.DataFrame()
     with tqdm(total=len(dict_data)) as bar:
         for k, v in dict_data.items():
-            #print(k)
-            #k, v = dict_data.popitem()
-
             v['PM25'] = v['PM2.5']
 
             df = get_date(v)
             
             df = df[(df['datetime'] >= setting.start_date) & (df['datetime'] <= setting.end_date)].reset_index(drop=True)
-    #list_ang = [setting.dict_cardinal[str(x)] for x in df['wd']]
-    #df['wd'] = list_ang
+    
             df = df.replace({'wd': setting.dict_cardinal})
-    #print(df['wd'])
-    #print(k)
+
             df = df[setting.selected_columns]
             
             for column in df.columns:
@@ -148,19 +143,13 @@ def preprocessing(dict_data: dict) -> DataFrame:
                     nan_per = len(df[df[column].isna()])/len(df)
                     if nan_per <= setting.limit_nan:
                         df[column] = df[column].interpolate(method='linear')
-            #print(check_complete_series(df))
+ 
             df = df.resample('d', on='datetime').mean()
             df['datetime'] = df.index
             
             new_names_meo = {k: v for k, v in zip(setting.meo_beijing_2013_2017, setting.normalize_meo)}
             df = df.rename(index=str, columns=new_names_meo)
 
-            #print(df)
-                #print(len(df[df[column].isna()])/len(df))
-                #print(column, nan_per)
-
-                #if column == 'PM25':   
-                #    mean_nan_pm25 += nan_per
             df = df.reset_index(drop=True)
             df['station'] = k
             current_aqm = aqm_data[(aqm_data['Label']==k)].reset_index(drop=True)
@@ -171,11 +160,6 @@ def preprocessing(dict_data: dict) -> DataFrame:
             data = pd.concat([data, df], axis=0)
             bar.set_description(f'loading {k}')
             bar.update(1)
-    
-    #print(dict_data['Aotizhongxin']['wd'])
-    #!k, v = dict_data.popitem()
-    #!print(v['wd'])
-    #print(mean_nan_pm25/len(dict_data))
     return data
 
 
