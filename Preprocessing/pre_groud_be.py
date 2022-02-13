@@ -1,8 +1,13 @@
 # ******************************************************************************************
 # Author: Luis Ernesto Colchado Soncco
-# Email: luis.colchado@ucsp.edu.pe
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.com
 # Description: Preprocess meteorological condition and pollution data from Beijing 
 # ******************************************************************************************
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+
 import os 
 from datetime import timedelta
 import pandas as pd 

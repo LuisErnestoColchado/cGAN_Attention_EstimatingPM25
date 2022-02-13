@@ -1,23 +1,21 @@
 
 #*************************************************************************************************
 # Author: Luis Ernesto Colchado 
-# Email: luis.colchado@ucsp.edu.pe
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.com
 # Description: Crop NTL data based on interest region
 # Based on https://hdfeos.org/zoo/LAADS_MOD_py.php
 #*************************************************************************************************
 import pyproj
-
+import re
 import numpy as np
 
 from pyhdf.SD import SD, SDC
 
 import json
 from sklearn.preprocessing import MinMaxScaler
-
 from PIL import Image   
 import os
 
-#PROJECT_ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 MOD13A2_DIR = '../Data/Satellite_data/MOD13A2'
 
 if not (os.path.isdir(MOD13A2_DIR)):
