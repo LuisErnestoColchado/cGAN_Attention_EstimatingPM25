@@ -8,7 +8,6 @@ currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
-
 from coord import Coord
 from point import Point
 from bounding_box import Bounding_box

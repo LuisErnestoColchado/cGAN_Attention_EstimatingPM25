@@ -3,7 +3,11 @@
 # Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.com
 # Description: Match meteorological condition, satellite products and pollution data for SAO PAULO
 # ******************************************************************************************
-import os
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+
 import numpy as np
 import pandas as pd
 from datetime import timedelta

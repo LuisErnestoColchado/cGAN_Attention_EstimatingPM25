@@ -3,10 +3,14 @@
 # Email: luis.colchado@ucsp.edu.pe
 # Description: Match meteorological condition, satellite products and pollution data for BEIJING
 # ******************************************************************************************
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-import os
 from datetime import timedelta
 from point import Point
 import json 
