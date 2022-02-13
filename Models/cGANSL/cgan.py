@@ -61,7 +61,9 @@ class cGAN:
 
         #!torch.save(self.generator.state_dict(), '../Models/cGANSL/Backup/g_model0.pt')
         #!torch.save(self.discriminator.state_dict(), '../Models/cGANSL/Backup/d_model0.pt')
-        
+        if not os.path.isdir('../Models/cGANSL/Backup'):
+            os.mkdir('../Models/cGANSL/Backup/')
+            
         self.generator.load_state_dict(torch.load('../Models/cGANSL/Backup/g_model0.pt'))
         self.discriminator.load_state_dict(torch.load('../Models/cGANSL/Backup/d_model0.pt'))
         real_error_discriminator = []
