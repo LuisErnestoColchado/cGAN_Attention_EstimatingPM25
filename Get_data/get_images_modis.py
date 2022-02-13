@@ -1,6 +1,8 @@
-#********************************************************
-# GEt Data from Modis (required URLs sent by MODIS LAADS)
-#********************************************************
+# ******************************************************************************************
+# Author: Luis Ernesto Colchado Soncco
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.coom
+# Description: Get data from MODIS (require USER KEY and URLs given by MODIS LAADS)
+# ****************************************************************************************** (
 import os 
 import subprocess
 
@@ -41,11 +43,11 @@ for source in VNP46A1_source:
     print(source + ' downloaded')
 print('VNP46A1 downloaded') 
 
-'''
+
 for source in MOD13A2_source:
     subprocess.call(["python3", 'download_laads.py', '-s',
                      source, '-d', MOD13A2_destination, '-t', API_KEY])
     print(source + ' downloaded')
 print('MOD13A2 downloaded')
-'''
+
 ##

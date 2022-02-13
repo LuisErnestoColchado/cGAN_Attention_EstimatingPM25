@@ -1,16 +1,8 @@
-#************************************************************************************************
-# Source: https://ladsweb.modaps.eosdis.nasa.gov/tools-and-services/data-download-scripts/#python
-#************************************************************************************************
-
-#!/usr/bin/env python
-
-# script supports either python2 or python3
-#
-# Attempts to do HTTP Gets with urllib2(py2) urllib.requets(py3) or subprocess
-# if tlsv1.1+ isn't supported by the python ssl module
-#
-# Will download csv or json depending on which python module is available
-#
+# ******************************************************************************************
+# Author: Luis Ernesto Colchado Soncco
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.coom
+# Description: Download data from MODIS
+# ******************************************************************************************
 
 import argparse
 import os
