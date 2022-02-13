@@ -2,7 +2,7 @@
 # Author: Luis Ernesto Colchado Soncco
 # Email: luis.colchado@ucsp.edu.pe
 # Description: kNN Attention polling layer 
-# Based on: https://github.com/BeautyOfWeb/AffinityNet/blob/master/affinitynet/graph_attention.py
+# Based on paper: https://arxiv.org/abs/1805.08905
 # ************************************************************************************************
 
 import numpy as np
@@ -77,16 +77,7 @@ class GraphAttentionLayer(nn.Module):
             self.weight = nn.Parameter(torch.Tensor(out_dim, in_dim))
             # initialize parameters
             std = 1. / np.sqrt(self.weight.size(1))
-            #init.xavier_normal_(self.weight.data)
-            #std = 1. / np.sqrt(self.weight.size(1))
             self.weight.data.uniform_(-std, std)
-            #self.weight.data = torch.as_tensor([[0.1653, 0.2211, 0.0896, -0.3359, 0.2779, 0.1168, 0.1028],
-            #               [-0.2507, -0.0906, -0.0630, 0.1364, -0.0938, -0.0713, -0.2251],
-            #               [0.3156, -0.0117, 0.0644, -0.1215, 0.1315, -0.2904, -0.2125],
-            #               [-0.0297, -0.1790, -0.1531, 0.2390, -0.0504, -0.2149, 0.1697],
-            #               [-0.1144, 0.2564, -0.1513, -0.2024, -0.0376, -0.2710, 0.1881],
-            #               [-0.3571, 0.3387, -0.2864, -0.1734, -0.1039, -0.2041, -0.0011],
-            #               [0.2362, -0.2469, 0.0761, -0.0168, 0.0492, -0.0782, -0.0550]])
 
         self.rescale = rescale
         self.k = k
@@ -134,8 +125,9 @@ class GraphAttentionLayer(nn.Module):
         #print(pollutant)
         if self.reset_graph_every_forward:
             self.reset_graph()
-
+        
         N = x.size(0)
+       
         out_indices = torch.range(start=0, end=N - 1).long() if self.out_indices is None else self.out_indices
 
         if self.feature_subset is not None:
@@ -187,11 +179,8 @@ class GraphAttentionLayer(nn.Module):
                 dist[dist == 0] = np.inf
                 d, dist = dist.sort()
                 # print(dist.shape)
-                # !!print(dist[:, :-1].shape)
+                # Except neighbor dist 0 
                 self.graph = dist[:, :-1]
-                #print(self.graph)
-                #print(self.graph[-1, :])
-
                 self.graph = self.graph[out_indices]
                 
         y = Variable(torch.zeros(len(out_indices), 1 + (
@@ -199,6 +188,7 @@ class GraphAttentionLayer(nn.Module):
         for i, idx in enumerate(out_indices):
             aux_data = out[idx]
             neighbor_idx = self.graph[i][:k]
+            #s!print(k)
             # neighbor_idx = neighbor_idx[neighbor_idx > 0]
             if self.kernel == 'gaussian':
                 if self.rescale:  # out has already been rescaled
@@ -227,17 +217,11 @@ class GraphAttentionLayer(nn.Module):
 
             a = nn.functional.softmax(a, dim=0)
 
-            #print(pollutant[neighbor_idx])
-            # since sum(a)=1, the following line should torch.sum instead of torch.mean
             x_pollutant = torch.cat([out[neighbor_idx], pollutant[neighbor_idx].unsqueeze(1)], dim=1)
-            # !!print(x_pollutant.shape, a.reshape(len(a), 1).shape)
-            # !value = pollutant[neighbor_idx].unsqueeze(1) * a.reshape(len(a), 1) #problem size 2 Y
             mean_data = torch.sum(x_pollutant * a.unsqueeze(1), dim=0)
             data = torch.cat([aux_data, mean_data])
-            # torch.cat([value.reshape(value.shape[0]*value.shape[1]), aux_data])
-            # torch.sum(x_pollutant * a.unsqueeze(1), dim=0)
             y[i] = data
-        if self.nonlinearity_2 is not None:#! and self.kernel=='affine':
+        if self.nonlinearity_2 is not None:#-! and self.kernel=='affine':
             y = self.nonlinearity_2(y)
         if self.layer_norm:
             y = nn.functional.relu(y)  # maybe redundant; just play safe
