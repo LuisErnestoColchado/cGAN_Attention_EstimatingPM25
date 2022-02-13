@@ -5,3 +5,8 @@ __pycache__/
 */__pycache__/ 
 **/__pycache__
 *.pt
+runs/ 
+Results/
+Graphics/
+Checkpoints/
+Backup/
