@@ -1,7 +1,7 @@
 # ******************************************************************************************
 # Author: Luis Ernesto Colchado Soncco
 # Email: luis.colchado@ucsp.edu.pe
-# Description: Match meteorological condition, satellite products and pollution data
+# Description: Match meteorological condition, satellite products and pollution data for BEIJING
 # ******************************************************************************************
 import pandas as pd
 import numpy as np
@@ -28,7 +28,6 @@ def get_data(DATA_DIR, start_date, end_date):
     days = (end_date - start_date).days
     data = {}
     print(f'Loading data from {DATA_DIR} ...')
-    #with tqdm(total=days) as bar:
     for file in os.listdir(DATA_DIR):
         if file.endswith('.dat'):
             year_days = file.split('_')[3][1:]
@@ -65,7 +64,6 @@ def labeled_data(data_knn, data, points, utc='Asia/Shangha'):
 
     data_knn = data_knn[(~data_knn['ndvi'].isna()) | (~data_knn['ntl'].isna())]
     data_knn.current_date = pd.to_datetime(data_knn.current_date)
-    #data_knn['timestamp1'] = pd.to_datetime(data_knn.current_date).view(int)
 
     merge_points = pd.merge(data, points, right_on='station', left_on='station')
     merge_points.datetime = pd.to_datetime(merge_points.datetime)
@@ -79,7 +77,6 @@ def labeled_data(data_knn, data, points, utc='Asia/Shangha'):
 
 
 if __name__ == '__main__':
-    # Read Satellite data preprocessed 
     data = pd.read_csv(setting.filename_data)
     data.datetime = pd.to_datetime(data.datetime)
     start_date = min(data['datetime'])
@@ -92,12 +89,11 @@ if __name__ == '__main__':
             dem_array = np.fromfile(f'{setting.DEM_DIR}/{file}', dtype=float)
             
             dem_array = dem_array.reshape(int(len(dem_array) / 3), 3)
-            #print(len(dem_array))
             dem_data = np.concatenate([dem_data, dem_array], axis=0)
     print('Loaded!')
 
 
-    data_ndvi = get_data(setting.NDVI_DIR, start_date, end_date)#, setting.ndvi_interval)
+    data_ndvi = get_data(setting.NDVI_DIR, start_date, end_date)
 
     data_ntl = get_data(setting.VNP_DIR, start_date, end_date)
 
@@ -106,7 +102,7 @@ if __name__ == '__main__':
     current_date = start_date
     count_error = 0
     data_knn = pd.DataFrame()
-    while current_date <= end_date: #-timedelta(days=700)
+    while current_date <= end_date: 
         current_data = data[data['datetime']==current_date]
         ndvi_date = str(current_date)[:10]
         
@@ -181,4 +177,4 @@ if __name__ == '__main__':
         current_date += timedelta(days=1)
 
     merge = labeled_data(data_knn, data, points)
-    merge.to_csv('Results/data_train_sp.csv')
+    merge.to_csv('Results/data_train.csv')

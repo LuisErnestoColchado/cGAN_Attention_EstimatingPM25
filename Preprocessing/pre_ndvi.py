@@ -1,8 +1,10 @@
 
-#**************************************************
+#*************************************************************************************************
+# Author: Luis Ernesto Colchado 
+# Email: luis.colchado@ucsp.edu.pe
+# Description: Crop NTL data based on interest region
 # Based on https://hdfeos.org/zoo/LAADS_MOD_py.php
-#**************************************************
-import re
+#*************************************************************************************************
 import pyproj
 
 import numpy as np

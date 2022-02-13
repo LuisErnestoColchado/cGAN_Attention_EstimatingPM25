@@ -1,3 +1,8 @@
+# ******************************************************************************************
+# Author: Luis Ernesto Colchado Soncco
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.coom
+# Description: Class Coord (lat, long)
+# ******************************************************************************************
 from pyproj import Proj, transform
 import math
 import pandas as pd

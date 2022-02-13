@@ -1,3 +1,8 @@
+# ******************************************************************************************
+# Author: Luis Ernesto Colchado Soncco
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.coom
+# Description: Class Bounding Box (id, dim, left_top, right_bottom)
+# ******************************************************************************************
 class Bounding_box():
     def __init__(self, id, dim, left_top, right_bottom):
         self.id = id

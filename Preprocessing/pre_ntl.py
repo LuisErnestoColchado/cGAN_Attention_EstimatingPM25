@@ -1,6 +1,6 @@
 #*************************************************************************************************
 # Author: Luis Ernesto Colchado 
-# Email: luis.colchado@ucsp.edu.pe
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.com
 # Description: Crop NTL data based on interest region
 # Based on https://hdfeos.org/zoo/MORE/LPDAAC/MCD/MCD19A2.A2010010.h25v06.006.2018047103710.hdf.py
 #*************************************************************************************************

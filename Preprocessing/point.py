@@ -1,5 +1,8 @@
-
-  
+# ******************************************************************************************
+# Author: Luis Ernesto Colchado Soncco
+# Email: luis.colchado@ucsp.edu.pe
+# Description: Class Point (x, y)
+# ******************************************************************************************
 from pyproj import Proj, transform
 import math
 
@@ -10,10 +13,13 @@ class Point():
 
 
     def convertToCoord(self):
-        in_proj = Proj('epsg:3857') # China data
+        proj_qgis = Proj(3857)
+        long, lat = proj_qgis(self.x, self.y, inverse=True)
+        #!in_proj = Proj('epsg:3857') # China data
         #in_proj = Proj(init='epsg:32723') # Brazil data
-        out_proj = Proj('epsg:4326')
-        lat, long = transform(in_proj, out_proj, self.x, self.y)
+        #!out_proj = Proj('epsg:4326')
+        #!lat, long = transform(in_proj, out_proj, self.x, self.y)
+        #!print('lat: ', lat, 'long: ', long)
         return lat, long
 
 

@@ -1,6 +1,6 @@
 # ******************************************************************************************
 # Author: Luis Ernesto Colchado Soncco
-# Email: luis.colchado@ucsp.edu.pe
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.com
 # Description: Preprocess meteorological condition and pollution data from Sao Paulo CETESB
 # ******************************************************************************************
 import os, sys
@@ -96,15 +96,21 @@ def grid_stations(labeled_stations) -> DataFrame:
             x_center, y_center = bb_grid.getCenter()
             lat_center, long_center = Point(x_center, y_center).convertToCoord()
             current_coord = Coord(lat_center, long_center)
+            lt_lat, lt_lon = grid_lt.convertToCoord()
+            rb_lat, rb_lon = grid_rb.convertToCoord()
+            lt_lat, lt_lon = round(lt_lat, 4), round(lt_lon, 4)
+            rb_lat, rb_lon = round(rb_lat, 4), round(rb_lon, 4)
+            
             flag = False 
             station_ = None
             for station, long, lat in zip(coord_aq_stations['Label'], coord_aq_stations['Longitude'], coord_aq_stations['Latitude']):
                 aqm_coord = Coord(lat, long)
                 dist = current_coord.haversineDistance(aqm_coord)
                 dict_neighbors.update({station: dist})
-                x, y = aqm_coord.convertToPoint()
-                point_station = Point(x, y)
-                if point_station.isWithinBB(bb_grid):
+                #!x, y = aqm_coord.convertToPoint()
+                #point_station = Point(x, y)
+                #!if point_station.isWithinBB(bb_grid):
+                if (lt_lat >= aqm_coord.lat >= rb_lat) and (lt_lon <= aqm_coord.long <= rb_lon):
                     flag = True
                     station_ = station
             dict_sorted = dict(sorted(dict_neighbors.items(), key=lambda item: item[1]))
@@ -156,9 +162,11 @@ if __name__ == '__main__':
     print(f'{min.lat}, {min.long} , {max.lat}, {max.long}')
 
     labeled_stations = pm25_daily['stationname'].unique().tolist()
+    label_stations = stations[stations['Label'].isin(labeled_stations)]
+    label_stations.to_csv('AQM_stations.csv', index=False)
     
     points = grid_stations(labeled_stations)
-
+    
     pm25.to_csv(setting.DIR_CETESB+'/data_pm25.csv', index=False)
     temperature.to_csv(setting.DIR_CETESB+'/data_temperature.csv', index=False)
     humidity.to_csv(setting.DIR_CETESB+'/data_humidity.csv', index=False)
@@ -166,3 +174,5 @@ if __name__ == '__main__':
     wind_direction.to_csv(setting.DIR_CETESB+'/data_wind_direction.csv', index=False)
     points.to_csv(setting.DIR_CETESB+'/points.csv')
     
+##
+

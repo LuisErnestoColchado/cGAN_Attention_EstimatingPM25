@@ -1,9 +1,8 @@
 #*****************************************************************************************
 # Author: Luis Ernesto Colchado Soncco
-# Email: luis.colchado@ucsp.edu.pe
+# Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.com
 # Description: Crop DEM data based on interest region
 #******************************************************************************************
-
 import numpy as np
 from osgeo import gdal
 import os

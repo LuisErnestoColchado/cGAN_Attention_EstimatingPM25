@@ -1,3 +1,8 @@
+# ******************************************************************************************
+# Author: Luis Ernesto Colchado Soncco
+# Email: luis.colchado@ucsp.edu.pe
+# Description: Match meteorological condition, satellite products and pollution data for SAO PAULO
+# ******************************************************************************************
 import os
 import numpy as np
 import pandas as pd
@@ -11,12 +16,11 @@ class setting:
     DIR_CETESB = '../Data/CETESB'
     DIR_POINTS = f'{DIR_CETESB}/points.csv'
     start_date = pd.to_datetime('01-01-2017') 
-    end_date = pd.to_datetime('12-31-2019')
+    end_date = pd.to_datetime('01-01-2017')#pd.to_datetime('12-31-2019')
     NDVI_DIR = f'{DIR_CETESB}/Satellite_data/MOD13A2/DATA_CROPPED'
     VNP_DIR = f'{DIR_CETESB}/Satellite_data//VNP46A1/DATA_CROPPED'
     DEM_DIR = f'{DIR_CETESB}/Satellite_data//DEM/DATA_CROPPED'
-    DIR_RESULTS = DIR_CETESB + '../Preprocessing_results'
-    selected_columns = ['lat', 'lon', 'temp', 'pres', 'dewp', 'wd', 'ws', 'ndvi', 'ntl', 'dem', 'pm25']
+    #selected_columns = ['lat', 'lon', 'temp', 'pres', 'dewp', 'wd', 'ws', 'ndvi', 'ntl', 'dem', 'pm25']
 
 
 def get_data(DATA_DIR):
@@ -40,7 +44,7 @@ def get_data(DATA_DIR):
     return data
 
 
-def match_data(points, df_pm25, df_temp, df_hum, df_press, df_wd, d_ndvi, d_ntl, array_dem):
+def match_data(points, df_pm25, df_temp, df_hum, df_press, df_wd, data_ndvi, data_ntl, array_dem):
     current_date = setting.start_date
     data = pd.DataFrame()
     count_error = 0
@@ -54,7 +58,9 @@ def match_data(points, df_pm25, df_temp, df_hum, df_press, df_wd, d_ndvi, d_ntl,
         current_pm25 = df_pm25[df_pm25['date']==string_date]
         if string_date in data_ndvi:
             current_ndvi = data_ndvi[string_date]
+            #print(current_ndvi)
             prev_ndvi = current_ndvi
+            print(string_date)
         else:
             current_ndvi = prev_ndvi
             
@@ -70,11 +76,13 @@ def match_data(points, df_pm25, df_temp, df_hum, df_press, df_wd, d_ndvi, d_ntl,
             for p in points.index:
                 current_station = points.loc[p, 'station']
                 lat, lon = points.loc[p, 'lat'], points.loc[p, 'long']
-                lat_left_top, lon_left_top = Point(points.loc[p, 'left'], 
+                lat_left_top, lon_left_top = Point(points.loc[p, 'left'],
                                                     points.loc[p, 'top']).convertToCoord()
-                lat_right_bottom, lon_right_bottom = Point(points.loc[p, 'right'], 
+                lat_right_bottom, lon_right_bottom = Point(points.loc[p, 'right'],
                                                     points.loc[p, 'bottom']).convertToCoord()
-                
+                lat_left_top, lon_left_top = round(lat_left_top, 6), round(lon_left_top, 6)
+                lat_right_bottom, lon_right_bottom = round(lat_right_bottom,6 ), round(lon_right_bottom, 6)
+                #!print(lat_left_top, lon_left_top, ' - ', lat_right_bottom, lon_right_bottom)
                 point_knn = json.loads(points.loc[p, 'knn'])
                 stations = [k for k in point_knn.keys()]
                 dist = [k for k in point_knn.values()]
@@ -107,7 +115,6 @@ def match_data(points, df_pm25, df_temp, df_hum, df_press, df_wd, d_ndvi, d_ntl,
                 d_dem = array_dem[(array_dem[:, 0] <= lat_left_top) & (array_dem[:, 1] >= lon_left_top) &
                                 (array_dem[:, 0] >= lat_right_bottom) & (array_dem[:, 1] <= lon_right_bottom)][:, 2]
 
-
                 if len(d_ndvi) > 0:
                     mean_ndvi = d_ndvi.mean()
                     mean_ntl = d_ntl.mean()
@@ -116,7 +123,7 @@ def match_data(points, df_pm25, df_temp, df_hum, df_press, df_wd, d_ndvi, d_ntl,
                     mean_ntl = np.nan
                 mean_dem = d_dem.mean()
 
-                row = {'lat': lat, 'lon': lon, 'temp': temp, 'hum': hum, 'press': press, 'wd': wd, 'ndvi': mean_ndvi, 
+                row = {'station': current_station, 'current_date': string_date,'lat': lat, 'lon': lon, 'temp': temp, 'hum': hum, 'press': press, 'wd': wd, 'ndvi': mean_ndvi, 
                         'ntl': mean_ntl, 'dem': mean_dem}
 
                 k = 0
@@ -136,7 +143,7 @@ def match_data(points, df_pm25, df_temp, df_hum, df_press, df_wd, d_ndvi, d_ntl,
                 if str(current_station) != 'nan':
                     curr_data = current_pm25[current_pm25['stationname']==current_station].reset_index(drop=True)
                     pm25_ = curr_data.loc[0, 'conc']
-                row.update({'pm25': pm25_})
+                row.update({'PM25': pm25_})
                 data = data.append(row, ignore_index=True)
                 bar.update(1)
 
@@ -164,8 +171,10 @@ if __name__ == '__main__':
     print('Loaded!')
     
     data_ndvi = get_data(setting.NDVI_DIR)
-
+    
     data_ntl = get_data(setting.VNP_DIR)
 
     data_train = match_data(points, pm25, temperature, humidity, pressure, wind_direction, data_ndvi, data_ntl, dem_array)
     
+    #data_train.to_csv('Results/data_train_sp_.csv')
+     
