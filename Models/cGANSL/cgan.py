@@ -4,6 +4,7 @@
 # Description: cGANSL Model (Adversarial and Spatial Loss)
 # ******************************************************************************************
 import os, sys
+from Experimentation.attention_NN import DATASOURCE
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
@@ -63,9 +64,9 @@ class cGAN:
         #!torch.save(self.discriminator.state_dict(), '../Models/cGANSL/Backup/d_model0.pt')
         if not os.path.isdir('../Models/cGANSL/Backup'):
             os.mkdir('../Models/cGANSL/Backup/')
-            
-        self.generator.load_state_dict(torch.load('../Models/cGANSL/Backup/g_model0.pt'))
-        self.discriminator.load_state_dict(torch.load('../Models/cGANSL/Backup/d_model0.pt'))
+
+        #!self.generator.load_state_dict(torch.load(f'../Models/cGANSL/Backup/g_model0_{DATASOURCE}.pt'))
+        #!self.discriminator.load_state_dict(torch.load(f'../Models/cGANSL/Backup/d_model0_{DATASOURCE}.pt'))
         real_error_discriminator = []
         fake_error_discriminator = []
         fake_error_generator = []

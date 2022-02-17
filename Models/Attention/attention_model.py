@@ -78,7 +78,7 @@ class Attention_model:
                 self.writer.add_scalar('Testing MAE', mae_test, i)
                 self.writer.add_scalar('Testing R2', r2_test, i) 
                 msg = f'Epoch {i}, RMSE {rmse_test}, MAE {mae_test}, R2 {r2_test}'
-                bar.set_description(msg)
+                print(msg)
                 bar.update(1)
         return {"rmse_test": RMSE_testing, "mae_test": MAE_testing, "r2_test": R2_testing}, msg
 
