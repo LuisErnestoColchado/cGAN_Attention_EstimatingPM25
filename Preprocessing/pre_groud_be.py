@@ -8,7 +8,6 @@ currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
-import os 
 from datetime import timedelta
 import pandas as pd 
 import numpy as np 
