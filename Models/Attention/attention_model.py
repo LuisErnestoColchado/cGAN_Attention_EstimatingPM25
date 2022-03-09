@@ -5,6 +5,8 @@
 # ******************************************************************************************
 from datetime import datetime
 import os, sys
+
+from numpy import DataSource
 currentdir = os.path.dirname(os.path.realpath(__file__) )
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -17,7 +19,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 class Attention_model:
     def __init__(self, attention_layer, ann, knn, criterion, opt_atten_layer, opt_ann, num_epoch,
-                 scale_pollutant):
+                 scale_pollutant, kernel, DATASOURCE):
         self.attention_layer = attention_layer
         self.ann = ann
         self.knn = knn
@@ -27,9 +29,33 @@ class Attention_model:
         self.num_epoch = num_epoch 
         self.scale_pollutant = scale_pollutant
 
-        self.writer = SummaryWriter(log_dir=f'attention_runs/{str(datetime.now())}')
+        
+        self.dir_backup = f"../Models/Attention/Backup/{DATASOURCE}_{kernel}"
+        self.kernel = kernel
+        self.DATASOURCE = DATASOURCE
+        
+    def training(self, data_loader, dir_result):
+        
+        run_directory = f'{dir_result}/attention_runs'
+        if not os.path.isdir(run_directory):
+            os.mkdir(run_directory)
 
-    def training(self, data_loader):
+        writer = SummaryWriter(log_dir=run_directory)
+
+        if not os.path.isdir('../Models/Attention/Backup'):
+            os.mkdir('../Models/Attention/Backup')
+        
+        if not os.path.isdir(self.dir_backup):
+            os.mkdir(self.dir_backup)
+
+        init_ann = f"{self.dir_backup}/ann_init_{self.DATASOURCE}.pt"
+        #if os.path.exists(init_ann):
+        try:
+            self.ann.load_state_dict(torch.load(init_ann))
+        except Exception as e:
+            print(e, ' Creating new backup of initial ANN ...')
+            torch.save(self.ann.state_dict(), init_ann)
+
         R2_testing = []
         RMSE_testing = []
         MAE_testing = []
@@ -44,7 +70,7 @@ class Attention_model:
                     x_batch_test = batch_data['x_test']
                     y_batch_test = batch_data['y_test']
                     
-                    out, result, a = self.attention_layer(x_batch)
+                    _, result, _ = self.attention_layer(x_batch)
 
                     out_final = self.ann(result)
                     
@@ -57,7 +83,7 @@ class Attention_model:
                     self.opt_ann.step()
                     with torch.no_grad():
                         graph_test = torch.cat([x_batch, x_batch_test], dim=0)
-                        _, z, a_test = self.attention_layer(graph_test)
+                        _, z, _ = self.attention_layer(graph_test)
 
                         y_hat = self.ann(z)
 
@@ -67,20 +93,21 @@ class Attention_model:
                         y = self.scale_pollutant.inverse_transform(y_batch_test.detach().numpy().reshape(-1, 1))
                         Y[j] = y
                         Y_HAT[j] = y_hat_test
-
-                rmse_test = np.sqrt(mean_squared_error(Y, Y_HAT))
-                mae_test = mean_absolute_error(Y, Y_HAT)
-                r2_test = r2_score(Y, Y_HAT)
+                torch.save(self.attention_layer, f"{self.dir_backup}/attention_layer_{i}.pt")
+                torch.save(self.ann, f"{self.dir_backup}/ann_{i}.pt")
+                rmse_test = round(np.sqrt(mean_squared_error(Y, Y_HAT)), 4)
+                mae_test = round(mean_absolute_error(Y, Y_HAT), 4)
+                r2_test = round(r2_score(Y, Y_HAT), 4)
                 MAE_testing.append(mae_test)
                 RMSE_testing.append(rmse_test)
                 R2_testing.append(r2_test)
-                self.writer.add_scalar('Testing RMSE', rmse_test, i)
-                self.writer.add_scalar('Testing MAE', mae_test, i)
-                self.writer.add_scalar('Testing R2', r2_test, i) 
+                writer.add_scalar('Testing RMSE', rmse_test, i)
+                writer.add_scalar('Testing MAE', mae_test, i)
+                writer.add_scalar('Testing R2', r2_test, i) 
                 msg = f'Epoch {i}, RMSE {rmse_test}, MAE {mae_test}, R2 {r2_test}'
                 print(msg)
                 bar.update(1)
-        return {"rmse_test": RMSE_testing, "mae_test": MAE_testing, "r2_test": R2_testing}, msg
+        return self.attention_layer, self.ann, {"rmse_test": RMSE_testing, "mae_test": MAE_testing, "r2_test": R2_testing, "output_test": Y_HAT}, msg
 
 ##
 
