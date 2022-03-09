@@ -44,7 +44,7 @@ class cGAN:
         self.scale_pollutant = scale_pollutant
         self.scale_distance = scale_distance
 
-    def training_test(self, train_loader, condition_test, x_test, knn, directory_results):
+    def training_test(self, train_loader, condition_test, x_test, knn, directory_results, station):
         
         run_directory = f'{directory_results}/cgan_runs'
         if not os.path.isdir(run_directory):
@@ -60,13 +60,24 @@ class cGAN:
         self.generator = init_net(self.generator)
         self.discriminator = init_net(self.discriminator)
 
-        #!torch.save(self.generator.state_dict(), '../Models/cGANSL/Backup/g_model0.pt')
-        #!torch.save(self.discriminator.state_dict(), '../Models/cGANSL/Backup/d_model0.pt')
         if not os.path.isdir('../Models/cGANSL/Backup'):
-            os.mkdir('../Models/cGANSL/Backup/')
+            os.mkdir('../Models/cGANSL/Backup')
+        
+        init_g = f"../Models/cGANSL/Backup/g_model0_{DATASOURCE}_{knn}.pt"
+        init_d = f"../Models/cGANSL/Backup/d_model0_{DATASOURCE}_{knn}.pt"
+        
+        try:
+            self.generator.load_state_dict(torch.load(init_g))
+        except Exception as e:
+            print(e, ' Creating new backup of initial Generator ...')
+            torch.save(self.generator.state_dict(), init_g)
+        
+        try:
+            self.generator.load_state_dict(torch.load(init_d))
+        except Exception as e:
+            print(e, ' Creating new backup of initial Discriminator ...')
+            torch.save(self.generator.state_dict(), init_d)
 
-        #!self.generator.load_state_dict(torch.load(f'../Models/cGANSL/Backup/g_model0_{DATASOURCE}.pt'))
-        #!self.discriminator.load_state_dict(torch.load(f'../Models/cGANSL/Backup/d_model0_{DATASOURCE}.pt'))
         real_error_discriminator = []
         fake_error_discriminator = []
         fake_error_generator = []
@@ -171,8 +182,8 @@ class cGAN:
                     bar.set_description("Epoch " + str(i))
                     bar.update(1)
 
-                    torch.save(self.generator.state_dict(), f'{backup_directory}/g_model_{i}.pt')
-                    torch.save(self.discriminator.state_dict(), f'{backup_directory}/d_model_{i}.pt')
+                    torch.save(self.generator.state_dict(), f'{backup_directory}/g_model_{DATASOURCE}_{i}_{station}.pt')
+                    torch.save(self.discriminator.state_dict(), f'{backup_directory}/d_model_{DATASOURCE}_{i}_{station}.pt')
                     writer.add_scalars('Fake Loss', {'Fake Generator': ge, 'Loss Fake Discriminator': dfe}, i)
                     writer.add_scalar('Testing RMSE', RMSE_test, i)
                     writer.add_scalar('Testing MAE', MAE_test, i)
@@ -185,5 +196,5 @@ class cGAN:
                     
             results = {"mse_test": fake_mse_test, "rmse_test": fake_rmse_test, "mae_test": fake_mae_test, 
             "r2_test": fake_r2_test, "fake_error_g": fake_error_generator, "fake_error_d": fake_error_discriminator,
-            "real_error_d": real_error_discriminator}
+            "real_error_d": real_error_discriminator, "output_test": fake_pm25}
             return results, msg
