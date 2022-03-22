@@ -8,6 +8,7 @@ from datetime import datetime
 import os, sys
 
 from soupsieve import match
+from Experimentation.attention_NN import DATASOURCE
 currentdir = os.path.dirname(os.path.realpath(__file__) )
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -20,7 +21,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 class Attention_model:
     def __init__(self, attention_layer, ann, knn, criterion, opt_atten_layer, opt_ann, num_epoch,
-                 scale_pollutant):
+                 scale_pollutant, DATASOURCE):
         self.attention_layer = attention_layer
         self.ann = ann
         self.knn = knn
@@ -29,7 +30,7 @@ class Attention_model:
         self.opt_ann = opt_ann
         self.num_epoch = num_epoch 
         self.scale_pollutant = scale_pollutant
-
+        self.DATASOURCE = DATASOURCE
         self.writer = SummaryWriter(log_dir=f'attention_runs/{str(datetime.now())}')
 
     def training(self, data_loader, data_loader_test):
@@ -52,7 +53,7 @@ class Attention_model:
                     #!print(x_batch.shape)
                     out, result, a = self.attention_layer(x_batch)
 
-                    out_final = self.ann(result)
+                    out_final = self.ann(result, self.DATASOURCE)
                     
                     error = self.criterion(y_batch, out_final)
                     
@@ -78,7 +79,7 @@ class Attention_model:
 
                         _, z, a_test = self.attention_layer(x_batch_test)
 
-                        y_hat_test = self.ann(z)
+                        y_hat_test = self.ann(z, self.DATASOURCE)
 
                         #y_hat_test = y_hat
                         

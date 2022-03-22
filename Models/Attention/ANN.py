@@ -19,11 +19,12 @@ class ANN(nn.Module):
         self.batch3 = nn.BatchNorm1d(32)
         self.layer4 = nn.Linear(32, output_size)
 
-    def forward(self, x):
+    def forward(self, x, DATASOURCE):
         x = self.layer1(x)
         x = nn.LeakyReLU()(x)
         x = self.layer2(x)
-        x = self.batch2(x)
+        if DATASOURCE == 'SP':
+            x = self.batch2(x)
         x = nn.LeakyReLU()(x)
         x = self.layer3(x)
         x = nn.LeakyReLU()(x)

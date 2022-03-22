@@ -72,7 +72,7 @@ class Attention_model:
                     
                     _, result, _ = self.attention_layer(x_batch)
 
-                    out_final = self.ann(result)
+                    out_final = self.ann(result, self.DATASOURCE)
                     
                     error = self.criterion(y_batch, out_final)
                     
@@ -85,7 +85,7 @@ class Attention_model:
                         graph_test = torch.cat([x_batch, x_batch_test], dim=0)
                         _, z, _ = self.attention_layer(graph_test)
 
-                        y_hat = self.ann(z)
+                        y_hat = self.ann(z, self.DATASOURCE)
 
                         y_hat_test = y_hat[-1, :]
                         

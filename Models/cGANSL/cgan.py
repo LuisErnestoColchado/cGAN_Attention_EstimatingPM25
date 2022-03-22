@@ -3,6 +3,7 @@
 # Email: luis.colchado@ucsp.edu.pe / luisernesto.200892@gmail.com
 # Description: cGANSL Model (Adversarial and Spatial Loss)
 # ******************************************************************************************
+from cgi import print_arguments
 import os, sys
 from Experimentation.attention_NN import DATASOURCE
 
@@ -100,11 +101,11 @@ class cGAN:
                     for _ in range(self.g_steps):
                         size_batch = condition.size(0)
                         
-                        indeces_labeled = torch.where(~torch.isnan(x_real))
+                        indices_labeled = torch.where(~torch.isnan(x_real))
 
                         FloatTensor = torch.cuda.FloatTensor if self.cuda else torch.FloatTensor
-                        valid = Variable(FloatTensor(len(indeces_labeled[0])).fill_(1.0), requires_grad=False)
-                        fake = Variable(FloatTensor(len(indeces_labeled[0])).fill_(0.0), requires_grad=False)
+                        valid = Variable(FloatTensor(len(indices_labeled[0])).fill_(1.0), requires_grad=False)
+                        fake = Variable(FloatTensor(len(indices_labeled[0])).fill_(0.0), requires_grad=False)
     
                         z = FloatTensor(np.random.rand(size_batch, self.z_dim))#0, 1, 
                         self.generator.zero_grad()
@@ -119,8 +120,8 @@ class cGAN:
                         spatial_error = torch.mul(torch.abs(knn_values - fake_data), softmax_dist) 
                         
                         spatial_error_ = spatial_error.mean()
-                        fake_data_labeled = fake_data[indeces_labeled]
-                        condition_labeled = condition[indeces_labeled]
+                        fake_data_labeled = fake_data[indices_labeled]
+                        condition_labeled = condition[indices_labeled]
 
                         fake_input_discriminator = torch.cat((fake_data_labeled, condition_labeled), dim=1)
                         dg_fake_decision = self.discriminator(fake_input_discriminator)
@@ -136,7 +137,7 @@ class cGAN:
                         ge = extract(g_error)[0]
 
                     for _ in range(self.d_steps):
-                        x_real_labeled = x_real[indeces_labeled].reshape(len(x_real[indeces_labeled]))
+                        x_real_labeled = x_real[indices_labeled].reshape(len(x_real[indices_labeled]))
                         self.discriminator.zero_grad()
                         real_input_discriminator = torch.cat((x_real_labeled.reshape(len(x_real_labeled), 1), condition_labeled), dim=1)
 

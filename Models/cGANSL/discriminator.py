@@ -20,7 +20,6 @@ class Discriminator(nn.Module):
         self.f = f
         self.f_relu = f_relu
         
-
     def forward(self, x):
         x = self.map1(x)
         x = self.f(x)   # f_relu
