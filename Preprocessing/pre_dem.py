@@ -12,7 +12,7 @@ import pandas as pd
 import pyproj
 
 name_images = ['srtm_beijing_1.tif', 'srtm_beijing_2.tif']
-DIR_DEM = '../Data/Satellite_data/DEM'
+DIR_DEM = '../Data/Beijing/Satellite_data/DEM'
 
 PNG_SAVE_DIR = f'{DIR_DEM}/PNG'
 if not (os.path.isdir(PNG_SAVE_DIR)):
@@ -26,7 +26,7 @@ if not (os.path.isdir(ARRAY_SAVE_DIR)):
 else:
     print('Data cropped directory exists.')
 
-grid_bb = pd.read_csv('../Data/Ground_data/2km_beijing_qgis.csv')
+grid_bb = pd.read_csv('../Data/Beijing/2km_beijing_qgis.csv')
 
 proj_qgis = pyproj.Proj(3857)
 

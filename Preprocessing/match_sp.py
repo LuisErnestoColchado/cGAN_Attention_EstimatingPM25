@@ -17,13 +17,14 @@ from point import Point
 
 
 class setting:
-    DIR_CETESB = '../Data/CETESB'
+    DIR_SP = '../Data/SaoPaulo/'
+    DIR_CETESB = '../Data/SaoPaulo/CETESB'
     DIR_POINTS = f'{DIR_CETESB}/points.csv'
     start_date = pd.to_datetime('01-01-2017') 
-    end_date = pd.to_datetime('01-01-2017')#pd.to_datetime('12-31-2019')
-    NDVI_DIR = f'{DIR_CETESB}/Satellite_data/MOD13A2/DATA_CROPPED'
-    VNP_DIR = f'{DIR_CETESB}/Satellite_data//VNP46A1/DATA_CROPPED'
-    DEM_DIR = f'{DIR_CETESB}/Satellite_data//DEM/DATA_CROPPED'
+    end_date = pd.to_datetime('12-31-2019')
+    NDVI_DIR = f'{DIR_SP}/Satellite_data/MOD13A2/DATA_CROPPED'
+    VNP_DIR = f'{DIR_SP}/Satellite_data/VNP46A1/DATA_CROPPED'
+    DEM_DIR = f'{DIR_SP}/Satellite_data/DEM/DATA_CROPPED'
     #selected_columns = ['lat', 'lon', 'temp', 'pres', 'dewp', 'wd', 'ws', 'ndvi', 'ntl', 'dem', 'pm25']
 
 
@@ -180,5 +181,5 @@ if __name__ == '__main__':
 
     data_train = match_data(points, pm25, temperature, humidity, pressure, wind_direction, data_ndvi, data_ntl, dem_array)
     
-    #data_train.to_csv('Results/data_train_sp_.csv')
+    data_train.to_csv('Results/data_train_sp_.csv')
      

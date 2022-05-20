@@ -8,7 +8,7 @@
 import pyproj
 import re
 import numpy as np
-
+import pandas as pd
 from pyhdf.SD import SD, SDC
 
 import json
@@ -16,7 +16,7 @@ from sklearn.preprocessing import MinMaxScaler
 from PIL import Image   
 import os
 
-MOD13A2_DIR = '../Data/Satellite_data/MOD13A2'
+MOD13A2_DIR = '../Data/Beijing/Satellite_data/MOD13A2'
 
 if not (os.path.isdir(MOD13A2_DIR)):
     os.mkdir(MOD13A2_DIR)
@@ -42,7 +42,7 @@ else:
 product_type = 'MOD13A2'
 
 # Selected the cover area of AQM stations
-grid_bb = pd.read_csv('../Data/Ground_data/2km_beijing_qgis.csv')
+grid_bb = pd.read_csv('../Data/Beijing/2km_beijing_qgis.csv')
 
 proj_qgis = pyproj.Proj(3857)
 west, north = proj_qgis(np.min(grid_bb['left'].values), np.max(grid_bb['top'].values), inverse=True)

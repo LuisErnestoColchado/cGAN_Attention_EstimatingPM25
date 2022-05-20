@@ -22,10 +22,11 @@ import json
 
 # Setting 
 class setting:
-    directory_data = '../Data/Ground_data/pollution_meteorological'
+    directory_data = '../Data/Beijing'
     num_files = len([name for name in os.listdir(directory_data) if os.path.isfile(name)])
-    grid2km_qgis = '../Data/Ground_data/2km_beijing_qgis.csv'
-    aq_stations = '../Data/Ground_data/stations_graph.csv'
+    directory_data_ground = f'{directory_data}/Ground_data'
+    grid2km_qgis = f'{directory_data}/2km_beijing_qgis.csv'
+    aq_stations = f'{directory_data}/stations.csv'
     dict_cardinal = {"N": 360, "NbE": 11.25, "NNE": 22.5, "NEbN": 33.75, "NE": 45, "NEbE": 56.25,
                     "ENE": 67.5, "EbN": 78.75, "E": 90, "EbS": 101.25, "ESE": 112.5, "SEbE": 123.75,
                     "SE": 135, "SEbS": 146.25, "SSE": 157.5, "SbE": 168.75, "S": 180, "SbW": 191.25,
@@ -44,7 +45,7 @@ class setting:
 def get_bb_region() -> Coord:
     data = pd.read_csv(setting.grid2km_qgis)
     #print(data.columns)
-    left, top = data.loc[0, 'left'], data.loc[0, 'top']
+    left, top = data.loc[0, 'left'], data.loc[0, 'top'] 
     right, bottom = data.iloc[-1, data.columns.get_loc('right')], data.iloc[-1, data.columns.get_loc('bottom')]
     lt_point = Point(left, top)
     lon, lat = lt_point.convertToCoord()
@@ -94,12 +95,14 @@ def grid_stations() -> DataFrame:
 # Function read the data for a directory (format: csv)
 def read_data() -> dict:
     dict_data = {}
-    with tqdm(total=len(glob.glob(os.path.join(setting.directory_data, '*.csv')))) as bar:
-        for filename in glob.glob(os.path.join(setting.directory_data, '*.csv')):
+    with tqdm(total=len(glob.glob(os.path.join(setting.directory_data_ground, '*.csv')))) as bar:
+        for filename in glob.glob(os.path.join(setting.directory_data_ground, '*.csv')):
             split_file = filename.split('_')
-            station = split_file[4]
+            print(split_file)
+            station = split_file[3]
             data = pd.read_csv(filename)
-            dict_data.update({station: data})   
+            dict_data.update({station: data}) 
+            #print(station) 
             bar.set_description(f'Reading data from {station} station')
             bar.update(1)
     return dict_data
@@ -156,6 +159,7 @@ def preprocessing(dict_data: dict) -> DataFrame:
 
             df = df.reset_index(drop=True)
             df['station'] = k
+            #print(k)
             current_aqm = aqm_data[(aqm_data['Label']==k)].reset_index(drop=True)
             lat, lon = current_aqm.loc[0, 'Latitude'], current_aqm.loc[0, 'Longitude']
             df['lat'] = lat
@@ -168,11 +172,11 @@ def preprocessing(dict_data: dict) -> DataFrame:
 
 
 if __name__ == '__main__':
-    points = grid_stations()
     dict_data = read_data()
+    points = grid_stations()
     min, max = get_bb_region()
     print(f'{min.lat}, {min.long} , {max.lat}, {max.long}')
     data = preprocessing(dict_data)#['Changping']
-    data.to_csv('../Data/Ground_data/preprocessed_data.csv', index=False)
-    points.to_csv('../Data/Ground_data/points.csv', index=False)
+    data.to_csv(f'{setting.directory_data}/preprocessed_data.csv', index=False)
+    points.to_csv(f'{setting.directory_data}/points.csv', index=False)
     

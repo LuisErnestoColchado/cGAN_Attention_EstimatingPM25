@@ -13,7 +13,7 @@ import os
 import pandas as pd
 ##
 
-VNP46A1_DIR = '../Data/Satellite_data/VNP46A1'
+VNP46A1_DIR = '../Data/Beijing/Satellite_data/VNP46A1'
 
 if not (os.path.isdir(VNP46A1_DIR)):
     os.mkdir(VNP46A1_DIR)
@@ -38,7 +38,7 @@ else:
 
 product_type = 'VNP46A1'
 
-grid_bb = pd.read_csv('../Data/Ground_data/2km_beijing_qgis.csv')
+grid_bb = pd.read_csv('../Data//Beijing/2km_beijing_qgis.csv')
 
 proj_qgis = pyproj.Proj(3857)
 

@@ -22,9 +22,9 @@ warnings.filterwarnings('ignore')
 
 
 class setting:
-    DIR_CETESB = '../Data/CETESB'
-    grid2km_qgis = '../Data/CETESB/grid2km_qgis.csv'
-    stations = '../Data/CETESB/stations.csv'
+    DIR_CETESB = '../Data/SaoPaulo/CETESB'
+    grid2km_qgis = '../Data/SaoPaulo/grid2km_qgis.csv'
+    stations = '../Data/SaoPaulo/CETESB/stations.csv'
     start_date = pd.to_datetime('2017-01-01 00:00:00')
     end_date = pd.to_datetime('2019-12-31 23:00:00')
     selected_columns  = ['stationname', 'date', 'conc']

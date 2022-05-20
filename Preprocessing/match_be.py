@@ -17,11 +17,11 @@ import json
 
 
 class setting:
-    NDVI_DIR = '../Data/Satellite_data/MOD13A2/DATA_CROPPED'
-    VNP_DIR = '../Data/Satellite_data/VNP46A1/DATA_CROPPED'
-    DEM_DIR = '../Data/Satellite_data/DEM/DATA_CROPPED'
-    filename_data = '../Data/Ground_data/preprocessed_data.csv'
-    filename_points = '../Data/Ground_data/points.csv'
+    NDVI_DIR = '../Data/Beijing/Satellite_data/MOD13A2/DATA_CROPPED'
+    VNP_DIR = '../Data/Beijing/Satellite_data/VNP46A1/DATA_CROPPED'
+    DEM_DIR = '../Data/Beijing/Satellite_data/DEM/DATA_CROPPED'
+    filename_data = '../Data/Beijing/preprocessed_data.csv'
+    filename_points = '../Data//Beijing/points.csv'
     number_img_dem = 2
     knn = 7
     normalize_meo = ['temp', 'pres', 'dewp', 'wd', 'ws']
