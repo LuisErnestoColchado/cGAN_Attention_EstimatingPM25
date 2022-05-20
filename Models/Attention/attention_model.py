@@ -31,6 +31,7 @@ class Attention_model:
 
         
         self.dir_backup = f"../Models/Attention/Backup/{DATASOURCE}_{kernel}"
+        self.dir_init = f"../Models/Attention/Backup/init/{DATASOURCE}"
         self.kernel = kernel
         self.DATASOURCE = DATASOURCE
         
@@ -45,10 +46,16 @@ class Attention_model:
         if not os.path.isdir('../Models/Attention/Backup'):
             os.mkdir('../Models/Attention/Backup')
         
+        if not os.path.isdir('../Models/Attention/Backup/init'):
+            os.mkdir('../Models/Attention/Backup/init')
+            
         if not os.path.isdir(self.dir_backup):
             os.mkdir(self.dir_backup)
+        
+        if not os.path.isdir(self.dir_init):
+            os.mkdir(self.dir_init)
 
-        init_ann = f"{self.dir_backup}/ann_init_{self.DATASOURCE}.pt"
+        init_ann = f"{self.dir_init}/ann_init_{self.DATASOURCE}.pt"
         #if os.path.exists(init_ann):
         try:
             self.ann.load_state_dict(torch.load(init_ann))

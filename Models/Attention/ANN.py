@@ -15,19 +15,16 @@ class ANN(nn.Module):
         self.batch1 = nn.BatchNorm1d(32)
         self.layer2 = nn.Linear(32, 32)
         self.batch2 = nn.BatchNorm1d(32)
-        self.layer3 = nn.Linear(32, 32)
-        self.batch3 = nn.BatchNorm1d(32)
-        self.layer4 = nn.Linear(32, output_size)
-
+        self.layer3 = nn.Linear(32, output_size)
     def forward(self, x, DATASOURCE):
         x = self.layer1(x)
+        if DATASOURCE == 'SP':
+            x = self.batch1(x)
         x = nn.LeakyReLU()(x)
         x = self.layer2(x)
         if DATASOURCE == 'SP':
             x = self.batch2(x)
         x = nn.LeakyReLU()(x)
         x = self.layer3(x)
-        x = nn.LeakyReLU()(x)
-        x = self.layer4(x)
         x = nn.functional.sigmoid(x)
         return x

@@ -59,7 +59,7 @@ class GraphAttentionLayer(nn.Module):
                  feature_subset=None, kernel='affine', nonlinearity_1=nn.Hardtanh(),
                  nonlinearity_2=None, use_previous_graph=True, reset_graph_every_forward=False,
                  no_feature_transformation=False, rescale=True, layer_norm=False, layer_magnitude=100,
-                 key_dim=None, feature_selection_only=False, size_hidden=32, out_pollutant=1):
+                 key_dim=None, feature_selection_only=False):
         super(GraphAttentionLayer, self).__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim
@@ -108,9 +108,10 @@ class GraphAttentionLayer(nn.Module):
         else:
             raise ValueError('kernel {0} is not supported'.format(kernel))
         value = 1. / len(self.a)
-
+        #!self.a.data = torch.full()
         self.a.data = torch.full([len(self.a)], value)
-
+        #!std = 1. / np.sqrt(self.weight.size(1))
+        #!self.weight.data.uniform_(-std, std)
     def reset_graph(self, graph=None):
         self.graph = graph
         self.cal_graph = True if self.graph is None else False
