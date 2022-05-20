@@ -1,4 +1,5 @@
 import os, sys
+from re import M
 
 from numpy import DataSource
 
@@ -17,6 +18,10 @@ from torch.utils.data import DataLoader, TensorDataset
 try:
     DATASOURCE = sys.argv[1]
     knn = int(sys.argv[2])
+    if not os.path.isdir('Results'):
+        os.mkdir('Results')
+    if not os.path.isdir(f'Results/{DATASOURCE}'):
+        os.mkdir(f'Results/{DATASOURCE}')
 except Exception as e:
     raise ValueError('Input SP: Sao paulo Data or BE: Beijing Data and knn (3, 5, 7) as arguments')
 
@@ -30,12 +35,12 @@ class setting:
         station_test = ['Aotizhongxin', 'Dingling', 'Changping', 'Dongsi', 'Gucheng', 'Guanyuan',  'Huairou',
                         'Nongzhanguan', 'Shunyi', 'Wanliu', 'Wanshouxigong', 'Tiantan'] 
     elif DATASOURCE == 'SP':
-        DIR_DATA = '../Preprocessing/Results/data_train_sp.csv'
+        DIR_DATA = '../Preprocessing/Results/data_train_sp_.csv'
         condition_features = ['temp', 'press', 'hum', 'wd', 'ndvi', 'ntl', 'dem']
         train_labels = 10
-        station_test = ['Osasco', 'Pico do Jaraguá', 'Marg.Tietê-Pte Remédios',
-        'Cid.Universitária-USP-Ipen', 'Pinheiros', 'Parelheiros', 'Ibirapuera',
-        'Congonhas', 'Santana', 'Parque D.Pedro II', 'Itaim Paulista']
+        station_test = ['Parelheiros', 'Ibirapuera', 'Congonhas', 'Santana', 'Parque D.Pedro II', 'Itaim Paulista']#['Osasco', 'Pico do Jaraguá', 'Marg.Tietê-Pte Remédios',
+            #'Cid.Universitária-USP-Ipen', 'Pinheiros', 'Parelheiros', 'Ibirapuera',
+            #'Congonhas', 'Santana', 'Parque D.Pedro II', 'Itaim Paulista']
     else:
         raise ValueError("Input DATA should be 'SP' or 'BE'")
 

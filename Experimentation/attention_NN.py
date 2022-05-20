@@ -23,6 +23,10 @@ warnings.filterwarnings('ignore')
 try:
     DATASOURCE = sys.argv[1]
     kernel = sys.argv[2]
+    if not os.path.isdir('Results'):
+        os.mkdir('Results')
+    if not os.path.isdir(f'Results/{DATASOURCE}'):
+        os.mkdir(f'Results/{DATASOURCE}')
 except Exception as e:
     raise ValueError('Input SP: Sao paulo Data or BE: Beijing Data and kernel (affine, gaussian, inner-product, cosine) as arguments')
 
@@ -35,17 +39,17 @@ class setting:
         selected_features = ['temp', 'pres', 'dewp', 'wd', 'ws', 'ndvi', 'ntl', 'dem']
 
     elif DATASOURCE == 'SP':
-        DIR_DATA = '../Preprocessing/Results/data_train_sp.csv'
+        DIR_DATA = '../Preprocessing/Results/data_train_sp_.csv'
         test_station = ['Osasco', 'Pico do Jaraguá', 'Marg.Tietê-Pte Remédios',
             'Cid.Universitária-USP-Ipen', 'Pinheiros', 'Parelheiros', 'Ibirapuera',
             'Congonhas', 'Santana', 'Parque D.Pedro II', 'Itaim Paulista']
         selected_features = ['temp', 'press', 'hum', 'wd', 'ndvi', 'ntl', 'dem']
-        #num_epoch = 100#500
-        #0.0001
+        
     else:
         raise ValueError("Input DATA should be 'SP' or 'BE'")
-    num_epoch = 150#100
-    lr = 0.004
+    num_epoch = 800#100
+    lr_1 = 0.01  #0.04 diferent #ant SGD 0.005 #0.2#0.004 #0.004 #ant 0.003
+    lr_2 = 0.001 #0.004 #ant SGD 0.005
     for_normalization = selected_features+['PM25']
     cuda = False 
     criterion = nn.MSELoss()
@@ -108,12 +112,12 @@ if __name__ == '__main__':
                                     no_feature_transformation=True, graph=None,
                                     kernel=kernel, nonlinearity_1=None, nonlinearity_2=nn.LeakyReLU())
         
-        layer_optim = torch.optim.Adam(params=[attention_layer.a], lr=setting.lr)
+        layer_optim = torch.optim.SGD(params=[attention_layer.a], lr=setting.lr_1)
 
         ann = ANN(number_features*2+1, 1)
         ann = init_net(ann, device='cpu')
 
-        ann_optim = torch.optim.Adam(ann.parameters(), lr=setting.lr)
+        ann_optim = torch.optim.SGD(ann.parameters(), lr=setting.lr_2)
     
         attention_model = Attention_model(attention_layer, ann, None, setting.criterion, layer_optim,
                         ann_optim, setting.num_epoch, scalers['PM25'], kernel, DATASOURCE)

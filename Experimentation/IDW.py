@@ -27,7 +27,7 @@ class setting:
                    'Nongzhanguan', 'Shunyi', 'Wanliu', 'Wanshouxigong', 'Tiantan'] 
     
     elif DATASOURCE == 'SP':
-        DIR_DATA = '../Preprocessing/Results/data_train_sp.csv'
+        DIR_DATA = '../Preprocessing/Results/data_train_sp_.csv'
         station_test = ['Osasco', 'Pico do Jaraguá', 'Marg.Tietê-Pte Remédios',
         'Cid.Universitária-USP-Ipen', 'Pinheiros', 'Parelheiros', 'Ibirapuera',
         'Congonhas', 'Santana', 'Parque D.Pedro II', 'Itaim Paulista']
