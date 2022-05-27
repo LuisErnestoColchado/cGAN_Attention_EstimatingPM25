@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
         dict_max = {'affine': np.argmax(r2_affine), 'cosine': np.argmax(r2_cosine), 'gaussian': np.argmax(r2_gaussian), 
                     'inner-product': np.argmax(r2_inner_product)}
-        #print(station, ' - ', np.argmax(r2_affine))
+        print(station, ' - ', np.argmax(r2_affine))
         r2_avg_affine += np.max(r2_affine)
         r2_avg_cosine += np.max(r2_cosine)
         r2_avg_gaussian += np.max(r2_gaussian)
