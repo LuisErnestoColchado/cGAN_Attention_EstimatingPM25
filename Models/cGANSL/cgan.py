@@ -91,6 +91,10 @@ class cGAN:
         backup_directory = f'../Models/cGANSL/Backup/cgansl_advloss{self.parameter_adversarial}_spl{self.parameter_spatial}_knn{knn}'
         if not os.path.isdir(backup_directory):
             os.mkdir(backup_directory)
+        
+        dir_output = f'{backup_directory}/outputs'
+        if not os.path.isdir(dir_output):
+            os.mkdir(dir_output)
 
         with tqdm(total=self.num_epoch) as bar:
             for i in range(1, self.num_epoch+1):
@@ -185,6 +189,7 @@ class cGAN:
 
                     torch.save(self.generator.state_dict(), f'{backup_directory}/g_model_{DATASOURCE}_{i}_{station}.pt')
                     torch.save(self.discriminator.state_dict(), f'{backup_directory}/d_model_{DATASOURCE}_{i}_{station}.pt')
+                    np.save(f'{backup_directory}/outputs/output_{i}_{station}.npy', fake_pm25)
                     writer.add_scalars('Fake Loss', {'Fake Generator': ge, 'Loss Fake Discriminator': dfe}, i)
                     writer.add_scalar('Testing RMSE', RMSE_test, i)
                     writer.add_scalar('Testing MAE', MAE_test, i)

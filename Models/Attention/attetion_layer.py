@@ -112,6 +112,8 @@ class GraphAttentionLayer(nn.Module):
         self.a.data = torch.full([len(self.a)], value)
         #!std = 1. / np.sqrt(self.weight.size(1))
         #!self.weight.data.uniform_(-std, std)
+        #$$std = 1. / np.sqrt(self.a.size(0))
+        #$$self.a.data.uniform_(-std, std)
     def reset_graph(self, graph=None):
         self.graph = graph
         self.cal_graph = True if self.graph is None else False

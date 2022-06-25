@@ -19,7 +19,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 class Attention_model:
     def __init__(self, attention_layer, ann, knn, criterion, opt_atten_layer, opt_ann, num_epoch,
-                 scale_pollutant, kernel, DATASOURCE):
+                 scale_pollutant, kernel, DATASOURCE, station_test):
         self.attention_layer = attention_layer
         self.ann = ann
         self.knn = knn
@@ -30,11 +30,11 @@ class Attention_model:
         self.scale_pollutant = scale_pollutant
 
         
-        self.dir_backup = f"../Models/Attention/Backup/{DATASOURCE}_{kernel}"
+        self.dir_backup = f"../Models/Attention/Backup/{DATASOURCE}_{kernel}/{station_test}"
         self.dir_init = f"../Models/Attention/Backup/init/{DATASOURCE}"
         self.kernel = kernel
         self.DATASOURCE = DATASOURCE
-        
+        self.station = station_test
     def training(self, data_loader, dir_result):
         
         run_directory = f'{dir_result}/attention_runs'
@@ -45,6 +45,9 @@ class Attention_model:
 
         if not os.path.isdir('../Models/Attention/Backup'):
             os.mkdir('../Models/Attention/Backup')
+        
+        if not os.path.isdir(f'../Models/Attention/Backup/{self.DATASOURCE}_{self.kernel}'):
+            os.mkdir(f'../Models/Attention/Backup/{self.DATASOURCE}_{self.kernel}')
         
         if not os.path.isdir('../Models/Attention/Backup/init'):
             os.mkdir('../Models/Attention/Backup/init')
@@ -63,6 +66,9 @@ class Attention_model:
             print(e, ' Creating new backup of initial ANN ...')
             torch.save(self.ann.state_dict(), init_ann)
 
+        if not os.path.isdir(f'{self.dir_backup}/outputs'):
+            os.mkdir(f'{self.dir_backup}/outputs')
+
         R2_testing = []
         RMSE_testing = []
         MAE_testing = []
@@ -79,7 +85,7 @@ class Attention_model:
                     
                     _, result, _ = self.attention_layer(x_batch)
 
-                    out_final = self.ann(result, self.DATASOURCE)
+                    out_final = self.ann(result, self.DATASOURCE, self.station)
                     
                     error = self.criterion(y_batch, out_final)
                     
@@ -92,7 +98,7 @@ class Attention_model:
                         graph_test = torch.cat([x_batch, x_batch_test], dim=0)
                         _, z, _ = self.attention_layer(graph_test)
 
-                        y_hat = self.ann(z, self.DATASOURCE)
+                        y_hat = self.ann(z, self.DATASOURCE, self.station)
 
                         y_hat_test = y_hat[-1, :]
                         
@@ -100,8 +106,8 @@ class Attention_model:
                         y = self.scale_pollutant.inverse_transform(y_batch_test.detach().numpy().reshape(-1, 1))
                         Y[j] = y
                         Y_HAT[j] = y_hat_test
-                torch.save(self.attention_layer, f"{self.dir_backup}/attention_layer_{i}.pt")
-                torch.save(self.ann, f"{self.dir_backup}/ann_{i}.pt")
+                torch.save(self.attention_layer.state_dict(), f"{self.dir_backup}/attention_layer_{i}.pt")
+                torch.save(self.ann.state_dict(), f"{self.dir_backup}/ann_{i}.pt")
                 rmse_test = round(np.sqrt(mean_squared_error(Y, Y_HAT)), 4)
                 mae_test = round(mean_absolute_error(Y, Y_HAT), 4)
                 r2_test = round(r2_score(Y, Y_HAT), 4)
@@ -111,6 +117,7 @@ class Attention_model:
                 writer.add_scalar('Testing RMSE', rmse_test, i)
                 writer.add_scalar('Testing MAE', mae_test, i)
                 writer.add_scalar('Testing R2', r2_test, i) 
+                np.save(f'{self.dir_backup}/outputs/output_{i}.npy', Y_HAT)
                 msg = f'Epoch {i}, RMSE {rmse_test}, MAE {mae_test}, R2 {r2_test}'
                 print(msg)
                 bar.update(1)
